@@ -26,7 +26,10 @@ else
 
 builder.Services.AddDbContext<PickleDbContext>(options =>
 {
-    options.UseSqlServer(azSqlDbConnection);
+    options.UseSqlServer(azSqlDbConnection, azConnOpts =>
+    {
+        azConnOpts.EnableRetryOnFailure();
+    });
 });
 
 var app = builder.Build();
