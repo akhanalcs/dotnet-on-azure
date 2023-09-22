@@ -1,9 +1,32 @@
+using Microsoft.EntityFrameworkCore;
 using MunsonPickles.Web;
+using MunsonPickles.Web.Data;
+using MunsonPickles.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents();
+
+// Add my services
+builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<ReviewService>();
+
+var azSqlDbConnection = "";
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
+    azSqlDbConnection = builder.Configuration.GetConnectionString("Default");
+}
+else
+{
+    azSqlDbConnection = Environment.GetEnvironmentVariable("Default");
+}
+
+builder.Services.AddDbContext<PickleDbContext>(options =>
+{
+    options.UseSqlServer(azSqlDbConnection);
+});
 
 var app = builder.Build();
 
@@ -20,5 +43,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.MapRazorComponents<App>();
+
+// Add my custom pipeline stuffs
 
 app.Run();
