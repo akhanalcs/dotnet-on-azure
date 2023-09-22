@@ -6,7 +6,8 @@ using MunsonPickles.Web.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents();
+builder.Services.AddRazorComponents() // 👈 Adds services required to server-side render components. Added by default.
+    .AddServerComponents(); // 👈 Stuff I added for Server Side Interactivity
 
 // Add my services
 builder.Services.AddScoped<ProductService>();
@@ -42,8 +43,10 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
-app.MapRazorComponents<App>();
+app.MapRazorComponents<App>() // 👈 Discovers routable components and sets them up as endpoints. Added by default.
+    .AddServerRenderMode();  // 👈 Stuff I added for Server Side Interactivity
 
 // Add my custom pipeline stuffs
+app.CreateDbIfNotExists();
 
 app.Run();

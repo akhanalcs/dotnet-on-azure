@@ -1,4 +1,5 @@
 @inject ProductService ProductService
+@attribute [RenderModeServer]
 
 <h3>Products List</h3>
 
@@ -13,10 +14,10 @@ else
             <TemplateColumn Title="Product">
                 <a href="ProductDetails/@context.Id">@context.Name</a>
             </TemplateColumn>
-            <PropertyColumn Title="Type" Property="@(p => p.ProductType.Name)" Sortable="true" />
+            <PropertyColumn Title="Type" Property="@(p => p.ProductType.Name)" />
             <PropertyColumn Property="@(p => p.Description)" />
             <TemplateColumn>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal" @onclick="@(() => LeaveReview(context))">Review</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reviewModal" @onclick="@(e => LeaveReview(context))">Review</button>
             </TemplateColumn>
         </QuickGrid>
     </div>
