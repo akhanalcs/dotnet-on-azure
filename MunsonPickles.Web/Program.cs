@@ -17,11 +17,11 @@ var azSqlDbConnection = "";
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
-    azSqlDbConnection = builder.Configuration.GetConnectionString("Default");
+    azSqlDbConnection = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
 }
 else
 {
-    azSqlDbConnection = Environment.GetEnvironmentVariable("Default");
+    azSqlDbConnection = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
 }
 
 builder.Services.AddDbContext<PickleDbContext>(options =>
