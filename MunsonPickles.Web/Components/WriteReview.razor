@@ -1,6 +1,14 @@
+@using Azure.Storage.Blobs
+@using Azure.Storage.Blobs.Models
+@using Microsoft.Extensions.Azure
+@using Microsoft.Extensions.Options
+
+@attribute [RenderModeServer]
+
 @inject IJSRuntime Js
 @inject ReviewService ReviewService
-@attribute [RenderModeServer]
+@inject BlobServiceClient BlobServiceClient
+@inject IOptions<AzureStorageConfigOpts> AzStorageConfigOpts
 
 <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-hidden="true" aria-modal="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -15,6 +23,13 @@
                 <textarea class="form-control" rows="10" 
                 placeholder="Leave us a review, we'll ❤️ it and we'll ❤️ you!"
                 @bind="_reviewText" />
+                
+                <InputFile @key=@_inputFileId OnChange="@UploadFileAsync" />
+                
+                @if (_uploadSuccessful)
+                {
+                    <p class="bg-success">File uploaded!</p>
+                }
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
@@ -27,17 +42,50 @@
 @code {
     [Parameter]
     public Product? Product { get; set; }
-
+    
     string _reviewText = string.Empty;
+    string _loggedInUser = "ashish";
+    string _inputFileId = Guid.NewGuid().ToString();
+    bool _uploadSuccessful = false;
+    List<string> _photoUrls = new();
 
     async Task SaveReview()
     {
-        await ReviewService.AddReview(_reviewText, Product.Id);
+        await ReviewService.AddReview(_reviewText, _photoUrls, Product.Id);
 
         // we'll just assume everything worked out great and close the modal
-
         _reviewText = string.Empty;
+        _uploadSuccessful = false;
+        _photoUrls.Clear();
+
+        ClearInputFile();
 
         await Js.InvokeVoidAsync("hideModal", "reviewModal");
+    }
+    
+    // Reference: https://stackoverflow.com/a/70877124/8644294
+    private void ClearInputFile()
+    {
+        _inputFileId = Guid.NewGuid().ToString();
+    }
+
+    async Task UploadFileAsync(InputFileChangeEventArgs e)
+    {
+        _uploadSuccessful = false;
+        var containerClient = BlobServiceClient.GetBlobContainerClient(blobContainerName: _loggedInUser);
+        await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob); // Create folder based on the logged in User's name if it's not present
+    
+        // Assuming everything that's being uploaded is a .png :)
+        var newBlobName = $"{Guid.NewGuid()}.png";
+        
+        //var blobClient = containerClient.GetBlobClient(_newBlobName);
+        //await blobClient.UploadAsync(e.File.OpenReadStream(maxAllowedSize: 2048000)); // This works as well but I prefer one liner below
+        await containerClient.UploadBlobAsync(newBlobName, e.File.OpenReadStream(maxAllowedSize: 2048000));
+
+        //Make note of the urls of the files that have been uploaded. You'll need this when you add the review.
+        var cdnEndpoint = AzStorageConfigOpts.Value.CdnEndpoint;
+        _photoUrls.Add($"{cdnEndpoint}/{_loggedInUser}/{newBlobName}");
+    
+        _uploadSuccessful = true;
     }
 }
