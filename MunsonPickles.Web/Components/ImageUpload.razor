@@ -19,7 +19,7 @@
                 @foreach (var file in _files)
                 {
                     <li>
-                        File: @file.Name .
+                        File: @file.Name.
 
                         @if (CheckImageUploadResult(_uploadResults, file.Name, out var result))
                         {
