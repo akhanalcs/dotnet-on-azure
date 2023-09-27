@@ -1,72 +1,61 @@
-using Microsoft.EntityFrameworkCore;
-using MunsonPickles.Web.Data;
-using MunsonPickles.Web.Models;
+using System.Text.Json;
+using MunsonPickles.Shared.Entities;
+using MunsonPickles.Shared.Models;
 
 namespace MunsonPickles.Web.Services;
 
 public class ReviewService
 {
-    private readonly PickleDbContext _db;
+    private readonly HttpClient _reviewClient;
 
-    public ReviewService(PickleDbContext context)
+    public ReviewService(HttpClient reviewClient, IConfiguration config)
     {
-        _db = context;
+        _reviewClient = reviewClient;
+        _reviewClient.BaseAddress = new Uri(config["ApiEndpoint"]!);
     }
-
+    
     public async Task AddReview(string reviewText, List<string> photoUrls, int productId)
     {
-        var userId = "ashish"; // this will get changed out when we add auth
-
         try
         {
-            // Add photos
-            List<ReviewPhoto> photos = new();
-            foreach (var photoUrl in photoUrls)
+            var newReview = new NewReview
             {
-                photos.Add(new ReviewPhoto {  PhotoUrl = photoUrl });
-            }
-            
-            // create the new review
-            Review review = new()
-            {
-                Date = DateTime.Now,
-                Photos = photos,
-                Text = reviewText,
-                UserId = userId
+                PhotoUrls = photoUrls,
+                ProductId = productId,
+                ReviewText = reviewText
             };
-
-            var product = await _db.Products
-                                   .Where(p => p.Id == productId)
-                                   .Include(p=>p.Reviews)
-                                   .FirstOrDefaultAsync();
-
-            if (product is null)
-                return;
-
-            product.Reviews ??= new List<Review>();
-
-            product.Reviews.Add(review);
-
-            await _db.SaveChangesAsync();
+            
+            await _reviewClient.PostAsJsonAsync("/reviews", newReview);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine(ex);
+            Console.WriteLine(ex);
         }
     }
 
-    public async Task<IEnumerable<Review>> GetReviewsForProduct(int productId)
+    public async Task<IEnumerable<Review>?> GetReviewsForProduct(int productId)
     {
-        return await _db.Reviews.AsNoTracking().Where(r => r.Product.Id == productId).ToListAsync();
+        return await _reviewClient.GetFromJsonAsync<IEnumerable<Review>>($"/reviews?productId={productId}");
     }
-    
+
     public async Task<Review?> GetReviewByIdAsync(int reviewId)
     {
-        return await _db
-            .Reviews
-            .Include(r => r.Product)
-            .Include(r => r.Photos)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(r => r.Id == reviewId);
+        return await _reviewClient.GetFromJsonAsync<Review>($"/reviews/{reviewId}");
+    }
+
+    public async Task<IEnumerable<ImageUploadResult>> UploadReviewImages(MultipartFormDataContent content)
+    {
+        var uploadResults = new List<ImageUploadResult>();
+        var response = await _reviewClient.PostAsync("/reviews/uploadimages", content);
+        if (!response.IsSuccessStatusCode) return uploadResults;
+        
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+        };
+
+        await using var responseStream = await response.Content.ReadAsStreamAsync();
+        uploadResults = await JsonSerializer.DeserializeAsync<List<ImageUploadResult>>(responseStream, options) ?? new List<ImageUploadResult>();
+        return uploadResults;
     }
 }

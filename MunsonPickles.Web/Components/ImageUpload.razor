@@ -1,0 +1,123 @@
+@attribute [RenderModeServer]
+
+@using System.Net.Http.Headers
+
+@inject ReviewService ReviewService
+
+<p>
+    <label>
+        Upload up to @MaxAllowedFiles files:
+        <InputFile OnChange="@OnInputFileChange" multiple />
+    </label>
+</p>
+
+@if (_files.Count > 0)
+{
+    <div class="card">
+        <div class="card-body">
+            <ul>
+                @foreach (var file in _files)
+                {
+                    <li>
+                        File: @file.Name .
+
+                        @if (CheckImageUploadResult(_uploadResults, file.Name, out var result))
+                        {
+                            <span>
+                                Stored File Name: @result.StoredFileName
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                There was an error uploading the file
+                                (Error: @result.ErrorMessage).
+                            </span>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+<p>
+    @_message
+</p>
+
+@code {
+    [Parameter] public EventCallback<List<ImageUploadResult>> OnUploadCompleted { get; set; }
+    
+    private List<ImageFile> _files = new();
+    private List<ImageUploadResult> _uploadResults = new();
+    private const int MaxAllowedFiles = 3;
+    private bool _shouldRender;
+    private string? _message;
+
+    protected override bool ShouldRender() => _shouldRender;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        _shouldRender = false;
+        long maxFileSize = 2097152; // 2097152 bytes = 2MB
+        var upload = false;
+        _uploadResults.Clear();
+        _files.Clear();
+
+        using var content = new MultipartFormDataContent();
+
+        if (e.FileCount > MaxAllowedFiles)
+        {
+            _message = $"Try again with no more than {MaxAllowedFiles} files.";
+        }
+        else
+        {
+            foreach (var file in e.GetMultipleFiles(MaxAllowedFiles))
+            {
+                // If file.Name is already in the _uploadResults don't bother.
+                if (_uploadResults.SingleOrDefault(f => f.FileName == file.Name) is not null) continue;
+                
+                try
+                {
+                    _files.Add(new() { Name = file.Name });
+
+                    var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                    content.Add(
+                        content: fileContent,
+                        name: "\"files\"",
+                        fileName: file.Name);
+
+                    upload = true;
+                }
+                catch (Exception ex)
+                {
+                    _uploadResults.Add(
+                        new()
+                        {
+                            FileName = file.Name,
+                            ErrorMessage = ex.Message,
+                            Uploaded = false
+                        });
+                }
+            }
+
+            _message = string.Empty;
+        }
+
+        if (upload)
+        {
+            var uploadResults = await ReviewService.UploadReviewImages(content);
+            _uploadResults = _uploadResults.Concat(uploadResults).ToList();
+            await OnUploadCompleted.InvokeAsync(_uploadResults);
+        }
+
+        _shouldRender = true;
+    }
+
+    private static bool CheckImageUploadResult(IEnumerable<ImageUploadResult> uploadResults, string? fileName, out ImageUploadResult result)
+    {
+        result = uploadResults.SingleOrDefault(f => f.FileName == fileName) ?? new();
+        return result.Uploaded;
+    }
+}

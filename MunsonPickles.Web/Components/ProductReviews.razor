@@ -1,3 +1,4 @@
+@using MunsonPickles.Shared.Entities
 @inject ReviewService ReviewService
 @attribute [RenderModeServer]
 
@@ -37,6 +38,6 @@ else
 
     async Task GetReviews()
     {
-        _reviews = (await ReviewService.GetReviewsForProduct(Product!.Id)).AsQueryable();
+        _reviews = (await ReviewService.GetReviewsForProduct(Product!.Id))?.AsQueryable();
     }
 }

@@ -2,19 +2,19 @@
 
 @inject ReviewService ReviewService
 
-@if (review is null)
+@if (_review is null)
 {
     <p>Waiting for some reviews...</p>
 }
 else
 {
-    <h1 class="display-3">@review?.Product.Name Review</h1>
+    <h1 class="display-3">@_review?.Product.Name Review</h1>
 
-    <div>@review?.Text</div>
+    <div>@_review?.Text</div>
                       
-    @if (review?.Photos is not null)
+    @if (_review?.Photos is not null)
     {
-        @foreach (var item in review.Photos)
+        @foreach (var item in _review.Photos)
         {
             <div class="bg-light">
                 <img src="@item.PhotoUrl" class="m-4" style="height:100px;" alt=""/>
@@ -27,10 +27,10 @@ else
     [Parameter]
     public int ReviewId { get; set; }
 
-    Review? review;
+    Review? _review;
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        review = await ReviewService.GetReviewByIdAsync(ReviewId);
+        _review = await ReviewService.GetReviewByIdAsync(ReviewId);
     }
 }

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using MunsonPickles.Web.Models;
+using MunsonPickles.Shared.Entities;
 
-namespace MunsonPickles.Web.Data;
+namespace MunsonPickles.API.Data;
 
 public class PickleDbContext : DbContext
 {

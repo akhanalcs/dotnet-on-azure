@@ -1,4 +1,4 @@
-namespace MunsonPickles.Web.Models;
+namespace MunsonPickles.Shared.Entities;
 
 public class ReviewPhoto
 {

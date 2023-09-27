@@ -33,7 +33,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Products = (await ProductService.GetAllProducts()).AsQueryable();
+        Products = (await ProductService.GetAllProductsAsync())?.AsQueryable();
     }
 
     void LeaveReview(Product product)

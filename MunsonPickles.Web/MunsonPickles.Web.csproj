@@ -5,18 +5,14 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
       <UserSecretsId>2decef82-4b2f-4ad6-8dec-fe8dcce052a1</UserSecretsId>
-  </PropertyGroup>
+    </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Azure.Storage.Blobs" Version="12.18.0" />
       <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.0-rc.1.23421.29" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
-      <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MunsonPickles.Shared\MunsonPickles.Shared.csproj" />
     </ItemGroup>
     
 </Project>

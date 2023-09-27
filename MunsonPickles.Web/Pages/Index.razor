@@ -1,9 +1,9 @@
 ﻿@page "/"
-@inject IWebHostEnvironment Env
+@inject IHostEnvironment Env
 
 <PageTitle>Munson's Pickles & Preserves</PageTitle>
 
 <h1>Welcome to Munson's Pickles & Preserves</h1>
 <br/>
-<h2>ASPNETCORE_ENVIRONMENT: @Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")</h2>
-<h2>Environment.EnvironmentName: @Env.EnvironmentName</h2>
+<h6>ASPNETCORE_ENVIRONMENT: @Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")</h6>
+<h6>Environment.EnvironmentName: @Env.EnvironmentName</h6>
