@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http.Json;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +5,8 @@ using Microsoft.Extensions.Azure;
 using MunsonPickles.API.Data;
 using MunsonPickles.API.Endpoints;
 using MunsonPickles.API.Models;
+using Microsoft.AspNetCore.Http.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +27,8 @@ builder.Services.Configure<JsonOptions>(options =>
 {
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+
+builder.Services.AddAntiforgery();
 
 // Add my services. I added this.
 var azSqlDbConnection = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
@@ -75,17 +77,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAntiforgery();
+
 // Add my custom pipeline stuffs
 app.MapProductEndpoints();
 app.MapReviewEndpoints();
 //app.CreateDbIfNotExists();
-
-app.MapPost("/upload_many", async (IFormFileCollection myFiles) =>
-{
-    foreach (var file in myFiles)
-    {
-        // ...
-    }
-});
 
 app.Run();

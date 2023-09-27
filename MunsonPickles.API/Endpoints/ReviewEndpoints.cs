@@ -19,7 +19,7 @@ public static class ReviewEndpoints
         //https://localhost:7285/reviews?productId=1
         reviewsRouteGroup.MapGet("/", GetReviewsOfAProduct);
         reviewsRouteGroup.MapPost("/", CreateReview);
-        reviewsRouteGroup.MapPost("/uploadimages", UploadReviewImages);
+        reviewsRouteGroup.MapPost("/uploadimages", UploadReviewImages).DisableAntiforgery();
     }
     
     private static async Task<IResult> GetReviewsOfAProduct(int productId, PickleDbContext db)
@@ -80,12 +80,11 @@ public static class ReviewEndpoints
         }
     }
 
-    private static async Task<IResult> UploadReviewImages(IFormFile file1,
+    private static async Task<IResult> UploadReviewImages(IFormFileCollection files,
         PickleDbContext db,
         BlobServiceClient blobServiceClient,
         IOptions<AzureStorageConfigOpts> azStorageConfigOpts)
     {
-        var files = new List<IFormFile>() { file1 };
         var loggedInUser = "ashish"; // this will get changed out when we add auth
         var maxAllowedFiles = 3;
         long maxFileSize = 2097152; // 2097152 bytes = 2MB
@@ -118,22 +117,21 @@ public static class ReviewEndpoints
             {
                 try
                 {
-                    var trustedFileNameForFileStorage = Path.GetRandomFileName() + Path.GetExtension(file.Name);
+                    var trustedFileNameForStorage = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(file.FileName));
                     
                     var containerClient = blobServiceClient.GetBlobContainerClient(blobContainerName: loggedInUser);
                     await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob); // Create folder based on the logged in User's name if it's not present
-                    
-                    var newBlobName = trustedFileNameForFileStorage;
 
-                    //var blobClient = containerClient.GetBlobClient(newBlobName);
+                    //var blobClient = containerClient.GetBlobClient(trustedFileNameForStorage);
                     //await blobClient.UploadAsync(file.OpenReadStream()); // This works as well but I prefer one liner below
-                    await containerClient.UploadBlobAsync(newBlobName, file.OpenReadStream());
+                    await containerClient.UploadBlobAsync(trustedFileNameForStorage, file.OpenReadStream());
 
                     // Update the rest of the fields of uploadResult object
-                    // Make note of the url of the file that have been uploaded. You'll need this when you add the review.
-                    uploadResult.StoredFileUrl = $"{azStorageConfigOpts.Value.CdnEndpoint}/{loggedInUser}/{newBlobName}";
+                    // Make note of the url of the file that has been uploaded. You'll need this when you add the review.
+                    var imageUrl = $"{azStorageConfigOpts.Value.CdnEndpoint}/{loggedInUser}/{trustedFileNameForStorage}";
+                    uploadResult.StoredFileUrl = imageUrl;
                     uploadResult.Uploaded = true;
-                    uploadResult.StoredFileName = trustedFileNameForFileStorage;
+                    uploadResult.StoredFileName = trustedFileNameForStorage;
                 }
                 catch (IOException ex)
                 {
@@ -145,6 +143,6 @@ public static class ReviewEndpoints
             uploadResults.Add(uploadResult);
         }
         
-        return TypedResults.CreatedAtRoute(uploadResults);
+        return TypedResults.Created($"/reviews/uploadimages", uploadResults);
     }
 }
