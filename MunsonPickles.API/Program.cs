@@ -2,11 +2,13 @@ using Azure.Core;
 using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Identity.Web;
+using Microsoft.AspNetCore.Http.Json;
+using System.Text.Json.Serialization;
 using MunsonPickles.API.Data;
 using MunsonPickles.API.Endpoints;
 using MunsonPickles.API.Models;
-using Microsoft.AspNetCore.Http.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,23 @@ builder.Services.Configure<JsonOptions>(options =>
 {
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(jwtBearerOptions =>
+    {
+        builder.Configuration.Bind("AzureAdB2C", jwtBearerOptions);
+        jwtBearerOptions.TokenValidationParameters.NameClaimType = "name";
+    }, identityOptions =>
+    {
+        builder.Configuration.Bind("AzureAdB2C", identityOptions);
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("user_read", policy =>
+        policy
+            //.RequireRole("user")
+            .RequireClaim("scope", "read"));
 
 builder.Services.AddAntiforgery();
 
@@ -77,11 +96,28 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//https://stackoverflow.com/a/77198035/8644294
+//Matches request to an endpoint.
+//Any middleware before this line won't know which endpoint will run eventually. (Any middleware after line after this line will know)
+//The endpoint is always null before UseRouting is called.
+//app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+//Add your endpoints after these 2 calls ☝️ to protect them
+
+//This call should come AFTER calls to useAuth-N&Z
 app.UseAntiforgery();
 
-// Add my custom pipeline stuffs
+// Add my pipeline stuffs
 app.MapProductEndpoints();
 app.MapReviewEndpoints();
+app.MapGet("/public", () => $"Time is {DateTime.UtcNow}.");
+
+//The middleware after UseEndpoints execute only when no match is found
+//app.UseEndpoints(_ => { }); //For eg: app.UseEndpoints(endpoint => endpoint.MapGet("/", () => "Hello World"));
+
 //app.CreateDbIfNotExists();
 
 app.Run();

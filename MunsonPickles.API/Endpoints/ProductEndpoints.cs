@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MunsonPickles.API.Data;
 using MunsonPickles.Shared.Entities;
-using MunsonPickles.Shared.Models;
 
 namespace MunsonPickles.API.Endpoints;
 
@@ -10,7 +9,7 @@ public static class ProductEndpoints
     public static void MapProductEndpoints(this WebApplication app)
     {
         var productsRouteGroup = app.MapGroup("/products");
-        productsRouteGroup.MapGet("/", GetAllProducts);
+        productsRouteGroup.MapGet("/", GetAllProducts).RequireAuthorization("user_read");
         productsRouteGroup.MapGet("/{ProductId:int}", GetProduct);
     }
 
