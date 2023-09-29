@@ -74,7 +74,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 // Add the Microsoft Identity Web cookie policy
-//app.UseCookiePolicy();
+//app.UseCookiePolicy();Some comment III
 
 // Add the ASP.NET Core authentication service
 //app.UseAuthentication();
