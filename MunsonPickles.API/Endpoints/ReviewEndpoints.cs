@@ -71,7 +71,7 @@ public static class ReviewEndpoints
 
             await db.SaveChangesAsync();
 
-            return TypedResults.Created($"/products/{newNewReview.ProductId}/reviews/{review.Id}", review);
+            return TypedResults.Created($"/reviews/{review.Id}", review);
         }
         catch (Exception ex)
         {

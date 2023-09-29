@@ -30,17 +30,35 @@ builder.Services.Configure<JsonOptions>(options =>
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
+// AZURE ADB2C Setup - Start
+//https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/hosted-with-azure-active-directory-b2c?view=aspnetcore-7.0&viewFallbackFrom=aspnetcore-8.0#authentication-service-support
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(jwtBearerOptions =>
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
+
+//https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/hosted-with-azure-active-directory-b2c?view=aspnetcore-7.0#configure-useridentityname
+builder.Services.Configure<JwtBearerOptions>(
+    JwtBearerDefaults.AuthenticationScheme, options =>
     {
-        builder.Configuration.Bind("AzureAdB2C", jwtBearerOptions);
-        jwtBearerOptions.TokenValidationParameters.NameClaimType = "name";
-    }, identityOptions =>
-    {
-        builder.Configuration.Bind("AzureAdB2C", identityOptions);
+        options.TokenValidationParameters.NameClaimType = "name";
     });
 
+var initialScopes = builder.Configuration["AzureAdB2C:Scopes"]?.Split(' ');
+
+// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//     .AddMicrosoftIdentityWebApi(jwtBearerOptions =>
+//     {
+//         builder.Configuration.Bind("AzureAdB2C", jwtBearerOptions);
+//         //https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/hosted-with-azure-active-directory-b2c?view=aspnetcore-7.0#configure-useridentityname
+//         jwtBearerOptions.TokenValidationParameters.NameClaimType = "name";
+//     }, identityOptions =>
+//     {
+//         builder.Configuration.Bind("AzureAdB2C", identityOptions);
+//     });
+
 builder.Services.AddAuthorization();
+
+// AZURE ADB2C Setup - End
+
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("user_read", policy =>
         policy
