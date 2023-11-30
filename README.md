@@ -1,6 +1,25 @@
 # dotnet-on-azure
 Trying out .NET in Azure.
 
+## Common Services
+- Azure App Service
+- Azure Kubernetes Service
+- Azure Functions
+- Application Insights
+- Azure SignalR
+- Azure SQL
+- Key Vault
+- Container Registry
+- Blob Storage
+- Managed Identity
+- Azure Container Apps
+- App Config
+- Cosmos Db
+
+## Multitenant Apps
+Think of music streaming service or photo sharing service.
+
+## Understanding Tenants and Subscriptions
 ```mermaid
 graph TD
     A[Enrollment] ---> B["ABC Organization (Tenant aka Directory)<br>For eg: abc.onmicrosoft.com"]
@@ -28,483 +47,486 @@ graph TD
 
     classDef hidden display: none;
 ```
+Note: Users live at Tenant/ Directory level.
 
-### Common Services
-- Azure App Service
-- Azure Kubernetes Service
-- Azure Functions
-- Application Insights
-- Azure SignalR
-- Azure SQL
-- Key Vault
-- Container Registry
-- Blob Storage
-- Managed Identity
-- Azure Container Apps
-- App Config
-- Cosmos Db
+### Enrollment
+- Azure billing and cost management construct for Enterprise Agreement customers. ea.azure.com.
+- For large companies.
 
-### Multitenant Apps
-Think of music streaming service or photo sharing service.
+### Tenant  aka Directory
+- Is associated with a single entity, i.e. person, company or org and can own one or several subscriptions.
+- In my case, it's a person with domain name: affableashkoutlook.onmicrosoft.com and Organization Id (tenant Id): `9d7f6902-2a61-4363-964c-c464b9eaf716`(Found by going to Settings -> Directories + subscriptions OR Menu -> Azure Active Directory).
+- Contains user accounts and groups.
+- EVERY TENANT IS LINKED TO A SINGLE AZURE AD INSTANCE which is shared with all tenant's subscriptions.
+- Each tenant is referred to as an organization.
+- I can create multiple tenants after logging in to Azure Portal.
+- Directory Id is TenantId because of one to one relationship between tenant and Azure AD.
+- The reason it's called directory is because each directory has an Azure AD service associated with it.
+- Every MSFT service is always associated with an Azure AD even if we're not using Azure.
+- For eg: If I'm using O365, I'll have Azure AD at the top of it.
 
-### Service Principal and Managed Identities
-[Reference](https://stackoverflow.com/questions/61322079/difference-between-service-principal-and-managed-identities-in-azure)
-Internally, managed identities are service principals of a special type which are locked to only be used with Azure resources. 
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/019c6117-c1c5-4bde-9da0-e4d022ba2b7c">
 
-#### User Principal vs Service Principal in Azure. [Reference](https://youtu.be/RLnQqJY7Hss?si=2xGIlR0XHsukXbgY)
-<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/29a2fabe-9ac5-4e52-9cee-26f083c0ebdd">
-<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/217d6c13-cdb8-4b06-ab2d-decedf292ff5">
+### Subscriptions
+- Construct for creating separate billing and management boundaries. Is managed in portal.azure.com.
+- An agreement with MSFT to use one or more MSFT cloud platforms or services for which charges accrue based on either:
+   ○ Per user license fee. For eg: Saas like Office 365 or Dynamics 365.
+   ○ Cloud based resource consumption. For eg: Paas and IaaS.
+- A subscription is linked to a payment setup and each subscription will result in separate bill.
+- Subscription could be CSP (Cloud Service Provider), Pay-As-You-Go, EA etc.
+- For customers like Ashish Khanal who can use credit card and do Pay as you go.
+- Can create multiple subscriptions in Azure account to create separation.
+- A subscription can only be associated with a single Azure AD tenant at any given time.
+- Can be linked to existing identity stores for single sign on, or segregated into a separate area.
+- Becomes the major separation for assignment of RBAC within services.
+- Inside every subscription we can add Resources like VM, SqlDb etc.
+- Tenant or Directory has 1:M relationship with Subscription.
+  <img src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/1fb07d42-6b49-479d-8dff-706892fb5500" width="450">
 
-While I'm interacting with my Azure resources, I also talk to my AD to get my token and make requests. Look example here:
+### Resource Groups
+- A container that holds related resources.
+- Like App Service, Sql Db etc.
+- Resources in 1 RG are completely isolated from resources in another RG.
 
-<img width="950" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/3edd26ca-1a60-4e4b-84c4-bedc3a8d8ab7">
-
-### Understanding Tenants and Subscriptions
 References:  
 1. [Subscriptions, licenses, accounts, and tenants](https://learn.microsoft.com/en-us/microsoft-365/enterprise/subscriptions-licenses-accounts-and-tenants-for-microsoft-cloud-offerings?view=o365-worldwide)
 2. [Tenants and Subscriptions](https://azure-training.com/2022/02/28/understanding-tenants-and-subscriptions-in-azure/)
 3. [Difference between Tenant and Subscription](https://stackoverflow.com/a/61702511/8644294)
 
+## View TenandId and Subscription in Azure Portal
+### Open account in Azure
+Go to portal.azure.com. It's pretty self-explanatory.
 
+### Setup cloud shell
+#### Install homebrew
+Follow instructions [here](https://brew.sh/).
 
+#### Install Azure CLI for macOS using homebrew
+Follow instructions [here](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-macos#install-with-homebrew).
+```
+sudo chown -R $(whoami) /usr/local/var/homebrew
+sudo chown -R $(whoami) /usr/local/opt
+chmod u+w /usr/local/opt
+brew update && brew install azure-cli
+```
+ 
+#### Login to Azure using cloud shell
+````
+az login
+````
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/82aadcff-b17b-4f72-8e6b-2def70a6e555">
 
-
-                                                            Enrollment 
-- Azure billing and cost management construct for Enterprise Agreement customers. ea.azure.com
-- For large companies
-                                                                    |
-                                                   Tenant  aka Directory
-
-- For eg: affableashkoutlook.onmicrosoft.com (Found by going to Settings -> Directories + subscriptions OR Menu -> Azure Active Directory)
-- Directory Id is TenantId because of one to one relationship between tenant and Azure AD.
--The reason it's called directory is because each directory has an Azure AD service associated with it.
--Every MSFT service is always associated with Azure AD even if we're not using Azure
--For eg: If I'm using O365, I'll have Azure AD at the top of it.
-                                                                    |
-                                           Subscription1, Subscription2 
-- Construct for creating separate billing and management boundaries. Is managed in portal.azure.com
-- For customers like Ashish Khanal who can use credit card and do Pay as you go.
-- Can create multiple subscriptions in Azure account to create separation.
-- Can be linked to existing identity stores for single sign on, or segregated into a separate area.
-- Becomes the major separation for assignment of RBAC within services
-                                                                    |
-                                 ResourceGroup1           ResourceGroup2
--For eg: Create each resource group for each application
-                                                 |                                        |
-                           Resource11, Resource12           Resource21
-- Like App Service, Sql Db etc.
--Resources in 1 RG are completely isolated from resources in another RG
-
-
-Another variation of this hierarchy:
-
-                                                                                 ABC Organization(Tenant)
-                                                                  affableashkoutlook.onmicrosoft.com
-                                                                                                |______________________
-                                                                                                                                                  |
-               Contoso (Tenant)                    Fabrikam (Tenant)                                               |
-        contoso.onmicrosoft.com    fabirakam.onmicrosoft.com                                      |
-                              |                                                    |                                                            |
-         Dev Sub               Prod Sub          Dev Sub         Prod Sub        Some SaaS Non-Azure Subscription
-                |                            |                        |                        |                                               |
- DRG1           DRG2    PRG1, PRG2            RG                     RG                     Office 365,        Dynamics 365
-     |                    |                 |                        |                        |                                |                            | 
-AppService   SqlDb            …                        …                      …                     100 E5 licenses     50 Licenses
-
-
-Note: Users live at Tenant/ Directory level.
-
-
-
-
-Tenant:
-	- Is associated with a single entity, i.e. person, company or org and can own one or several subscriptions. In my case, it's a person with domain name: affableashkoutlook.onmicrosoft.com and Organization Id (tenant Id): 
-	9d7f6902-2a61-4363-964c-c364b9eaf716
-	- Each tenant is referred to as an organization.
-	- I can create multiple tenants after logging in to Azure Portal.
-	- EVERY TENANT IS LINKED TO A SINGLE AZURE AD INSTANCE which is shared with all tenant's subscriptions.
-	- Contains user accounts and groups
-	
-Subscription:
-	- An agreement with MSFT to use one or more MSFT cloud platforms or services for which charges accrue based on either:
-		○ Per user license fee. For eg: Saas like Office 365 or Dynamics 365.
-		○ Cloud based resource consumption. For eg: Paas and IaaS. 
-	- A subscription is linked to a payment setup and each subscription will result in separate bill.
-	- Subscription could be CSP (Cloud Service Provider), Pay-As-You-Go, EA etc.
-	- A subscription can only be associated with a single Azure AD tenant at any given time.
-	- Inside every subscription we can add Resources like VM, SqlDb etc.
-	- Tenant or Directory has 1:M relationship with Subscription
-
-	
-
-For eg:
-When I opened an Azure Account, this is what I got:
-Note: tenantId is my DirectoryId and id is my SubscriptionID.
-
-
-
-
-Search for Subscription from the search bar:
-
-
-You can see cost of your services inside the Subscription. Click on the Azure subscription 1 shown above.
-
-
-
-Creating resource group:
-ashish@Azure:~$ az group create -g rg-pitstop-eastus-dev-001 -l eastus
-
-👇
--g is for resource group name, -l is for location (Remember RALEIgh)
-ResourceGroup-AppName-Location-Environment-Instance
-
-
-
-Open account at Azure
-
-1.
-Register Microsoft.CloudShell namespace to your subscription.
+#### Register `Microsoft.CloudShell` namespace to your subscription
 Why?
+
 Cloud Shell needs access to manage resources.
 Access is provided through namespace that must be registered to your subscription.
 
+Get your subscription Id using
+```
+az account list (Grab Id)
+````
+Then
+````
 az account set --subscription <Subscription Name or Id>
 az provider register --namespace Microsoft.CloudShell
+````
 
-Get your subscription Id using
-az account list (Grab Id)
+### View tenantId
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/a91baa41-f750-4659-a695-c327e4376497">
 
+Note: `tenantId` is my DirectoryId and `id` is my SubscriptionID.
 
-Azure App Service:
-App service app naming: (Remember RALEIgh. R: ResourceType)
+### View Subscription
+Search for Subscription from the search bar:
 
+<img width="700" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/9e74b73c-ab1f-4984-b395-886c16f5d583">
+
+### View Subscription costs
+You can see cost of your services inside the Subscription. Click on the Azure subscription 1 shown above.
+
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d1ecaf88-2803-4d7a-91f6-4db425fd3559">
+
+## Create apps to deploy to Azure
+Create a web app (`MunsonPickles.Web`) and an API (`MunsonPickles.API`). Take a look at the code to see how they look.
+
+Note about Blazor Web App in .NET 8:
+
+With .NET 8 comes a new template for Blazor applications simply called `Blazor Web App` and by default all components use Server-Side-Rendering.
+To add interactivity to it, you need to add following service and middleware. More info [here](https://chrissainty.com/blazor-in-dotnet-8-server-side-and-streaming-rendering/).
+
+```
+builder.Services.AddRazorComponents() // 👈 Adds services required to server-side render components. Added by default.
+	.AddServerComponents(); // 👈 Stuff I added for Server Side Interactivity
+
+app.MapRazorComponents<App>() // 👈 Discovers routable components and sets them  up as endpoints. Added by default.
+	.AddServerRenderMode();// 👈 Stuff I added for Server Side Interactivity
+```
+
+Add interactivity to the new Blazor Web App in .NET 8 using [this guide](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/render-modes?view=aspnetcore-8.0).
+
+### Db Seed code in API
+Line 13 will create the tables, and line 14 will seed the database.
+
+<img width="800" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/2d2cdf2f-ebf0-4fef-8c03-f4f8b33b5333">
+
+Explicit migration is not required in the above approach that looks like
+````
+dotnet ef migrations add InitialCreate -o Data/Migrations
+dotnet ef database update
+````
+
+So when line `db.Database.EnsureCreated()` runs, it'll create the database and the next line will initialize the database.
+
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e170506f-1fb0-49f4-9f54-5bceba2a6f77">
+
+## Create resource group
+````
+ashish@Azure:~$ az group create -g rg-pitstop-eastus-dev-001 -l eastus
+````
+👇
+`-g` is for resource group name, `-l` is for location (Remember RALEIgh).
+
+So the convention that I'll be using is:
+````
+ResourceGroup-AppName-Location-Environment-Instance
+````
+
+## Create Azure App Service
 app-APPNAME-WEB(Because it's a web app)-LOCATION-ENV-INSTANCE
 
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e9f06473-84b1-4c08-b46b-e5e6f9db36b2">
 
-
-Web app runs on App Service Plan which determines CPU and memory of it.
+Web app runs on **App Service Plan** which determines CPU and memory of it.
 
 You can name it like this:
+````
 asp-APPNAME-LOCATION-ENV-INSTANCE
+````
 asp (App Service Plan)
 
 Notice it doesn't have type like web, api etc. after APPNAME. It's because I want to put both the web app and the web api in that app service plan.
 
-Note about Blazor Web App in .NET 8:
-With .NET 8 comes a new template for Blazor applications simply called Blazor Web App and by default all components user Server-Side-Rendering.
-To add interactivity to it, you need to add this service and middleware.
-More info here.
+## Database
+### Create Database server
+**Db Server:** sqlserver-munson-eastus-dev-001
 
-builder.Services.AddRazorComponents() //👈Adds services required to server-side render components. Added by default.
-.AddServerComponents(); //👈Stuff I added for Server Side Interactivity
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/727db0cf-e869-46c0-809d-f21122d699ee">
 
-app.MapRazorComponents<App>() //👈Discovers routable components and sets them  up as endpoints. Added by default.
-.AddServerRenderMode();//👈Stuff I added for Server Side Interactivity
+Allow connections to this SQL server from your IP.  
+They appear under Firewall rules. Only do this for dev scenarios, NOT for PROD. 
 
-Database:
-Sql Db
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/fc540f95-7fd1-40a4-ac1f-3899bc99e2ea">
 
-Password: Tara1028!
+And notice that's my IP address:  
+<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/8210cd60-f10d-4efb-af29-059c6acc58ee">
 
-Allow connections to this SQL server from your IP.
-They appear under Firewall rules:
+### Create Database
+**Db Name:** sqldb-munson-eastus-dev-001
 
-Only do this for dev scenarios, NOT for PROD. 
+Grab connection string (ADO.NET SQL auth):  
+`Server=tcp:sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Persist Security Info=False;User ID=munson;Password={your_password};`
 
+### Connect to Database using config (Go to the next section to see a better way of doing this)
+Add this conncection string to `dotnet-secrets`.
 
-And notice that's my IP address:
-
-
-Server: sqlserver-munson-eastus-dev-001
-Db Name: sqldb-munson-eastus-dev-001
-
-
-So far:
-Resource Group: rg-munson-eastus-dev-001
-App Service: app-munson-web-eastus-dev-001
-App Service Plan: asp-munson-eastus-dev-001
-Db Server: sqlserver-munson-eastus-dev-001
-Db Name: sqldb-munson-eastus-dev-001
-
-Grab connection string (ADO.NET SQL auth):
-Server=tcp:sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Persist Security Info=False;User ID=munson;Password={your_password};
-
-Add this conncection string to dotnet-secrets.
-
-1.Go into the project folder and init (dotnet user-secrets init)
-2.This will appear in .csproj file
-
+1. Go into the project folder and init (`dotnet user-secrets init`).
+2. This will appear in `.csproj` file.
+   
+   <img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/a4e82a9a-0cca-4279-962f-4491810ab5f1">
 
 Set the connection string with this command:
+````
 dotnet user-secrets set ConnectionStrings:Default "Server=tcp:sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Persist Security Info=False;User ID=munson;Password={your_password};"
+````
 
 This will set the connection string like this in the secrets.json:
 
+<img width="200" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/7c06cfb3-4502-4060-afed-9a13b0f441ce">
 
-It actually looks like this (after installing this plugin):
+It actually looks like this (after installing this [plugin](https://plugins.jetbrains.com/plugin/10183--net-core-user-secrets)):
 
+<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/b7374a63-8e5b-4eb0-92ed-71e81a4e49a9">
 
-Safe storage of app secrets in development in ASP.NET Core
+This is where that file is stored. [Reference](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-7.0&tabs=linux).
 
+<img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/4e337b64-6ae2-4967-ab06-0e087f486e06">
 
-Update:
-I decided to do Passwordless authentication to connect to the Azure SQL Db shown here.
-Server=tcp:sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication="Active Directory Default";
+### Connect to Database without password (my preferred way, a better way)
+[Reference](https://learn.microsoft.com/en-us/azure/azure-sql/database/azure-sql-dotnet-entity-framework-core-quickstart?view=azuresql&tabs=visual-studio%2Cservice-connector%2Cportal#add-the-code-to-connect-to-azure-sql-database)
 
-The passwordless connection string includes a configuration value of Authentication=Active Directory Default, which enables Entity Framework Core to use DefaultAzureCredential to connect to Azure services. When the app runs locally, it authenticates with the user you're signed into Visual Studio with. Once the app deploys to Azure, the same code discovers and applies the managed identity that is associated with the hosted app, which you'll configure later.
+Grab the connection string
+`Server=tcp:sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication="Active Directory Default";`
 
-Keep in mind that when you deploy a web app to Azure, it treats it as Production. 'Production' is default if DOTNET_ENVIORNMENT and ASPNETCORE_ENVIRONMENT is not set. Reference. 
-Environment values set in launchSettings.json override values set in the system environment. That file is only used on the local dev machine.
+The passwordless connection string includes a configuration value of `Authentication=Active Directory Default`, which enables Entity Framework Core to use `DefaultAzureCredential` to connect to Azure services. When the app runs locally, it authenticates with the user you're signed into Visual Studio with. Once the app deploys to Azure, the same code discovers and applies the **managed identity** that is associated with the hosted app, which you'll configure later.
 
+At this point you need to be logged into Azure using Azure CLI (`az login`), if you are not logged in, you'll get this exception if you try to run the app:
 
-Setup the Munson's Blazor app and run it.
+<img width="800" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/8b20fb3a-16eb-4a4f-ae1d-2b98bc98166e">
 
-You'll see this exception:
+Azure CLI login is shows [here](#### Login to Azure using cloud shell).
 
+**So far:**
 
+Resource Group: `rg-munson-eastus-dev-001`
+App Service: `app-munson-web-eastus-dev-001`
+App Service Plan: `asp-munson-eastus-dev-001`
+Db Server: `sqlserver-munson-eastus-dev-001`
+Db Name: `sqldb-munson-eastus-dev-001`
 
-Go to Plugins and install Azure Toolkit for Rider.
-
-Now install Azure CLI for macOS. (But install homebrew first.)
-	1. sudo chown -R $(whoami) /usr/local/var/homebrew
-	2. sudo chown -R $(whoami) /usr/local/opt
-	3. chmod u+w /usr/local/opt
-	4. brew update && brew install azure-cli
-
-
-Now login to Azure: az login
-
-
-This will satisfy this login requirement:
-Server=tcp:sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication="Active Directory Default";
-
-
-Now run the app:
-Line 13 will create the tables, and line 14 will seed the database.
-
-
-
-(Migration is not required in the above approach:
-Ashishs-MacBook-Pro:MunsonPickles.Web ashishkhanal$ 
-dotnet ef migrations add InitialCreate -o Data/Migrations
-dotnet ef database update
-)
-
-
-
-
-Add interactivity to the new Blazor Web App in .NET 8 using this guide:
-ASP.NET Core Blazor render modes | Microsoft Learn
-
-The app works now!
-
-Publish to Azure:
-Go to Tools -> Azure -> Azure Sign In
-
-
-Go with Device Login
-
-
-Select my Subscription:
-
-
-Now Right click on Project -> Publish -> Azure
-
-
-Select 'Use Existing Web App' and click on the app shown below, like so:
-
-
-Click Apply -> Run
-
-
-To publish it again:
-
-Go to Run -> ReRun the publish profile
-
-
-The easiest way is from the configuration dropdown in the top right:
-
-
-At this point the app doesn't work correctly on Azure. You still need to configure the secure connection between the App Service and the SQL database to retrieve your data. Read it all about it here.
-
-
-The following steps are required to connect the App Service instance to Azure SQL Database:
-	1. Create a managed identity for the App Service. The Microsoft.Data.SqlClient library included in your app will automatically discover the managed identity, just like it discovered your local machine Azure User.
-	2. Create a SQL database user and associate it with the App Service managed identity.
-	3. Assign SQL roles to the database user that allow for read, write, and potentially other permissions.
-
-Use Service connector to accomplish this:
-Service Connector is a tool that streamlines authenticated connections between different services in Azure. Service Connector currently supports connecting an App Service to a SQL database via the Azure CLI using the az webapp connection create sql command. This single command completes the three steps mentioned above for you.
-
-Now it doesn't have anything under Identity -> System assigned:
-
-
-Run this command:
-
-
-which translates to (Run it in Cloud Shell or Azure CLI):
-
-az webapp connection create sql -g rg-sampleapp-eastus-dev-001 -n app-munson-web2-eastus-dev-001 --tg rg-sampleapp-eastus-dev-001 --server sqlserver-munson1-eastus-dev-001 --database sqldb-munson-eastus-dev-001 --system-identity --connection ThisCanBeAnything --client-type dotnet
-
-Now you have managed Identity showing:
-
-
-This connection string shows up inside Configuration:
-
-Data Source=sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Authentication=ActiveDirectoryManagedIdentity
-
-
-The app still didn't start :(
-
-
-Go to App Service -> Diagnose and solve problems
--> Availability and Performance
-
-
-
-
-Container crash ->
-
-
-UPDATE: Running the command again solved the issue for me:
-
-
-The user shows up in the SQL Db as well:
-
-
-
-Also make sure you're admin to the database in SQL Server. This was here by default for me.
-
-
-Now the app runs from Azure. Big fuckin Yaaay!
-
-
-
-Upload files to a server: Reference
-
-Using Managed Identity to access Azure Services that support Azure AD. Reference
+## Managed Identity
 A managed identity from Azure Active Directory (Azure AD) allows App Service to access resources through role-based access control (RBAC), without requiring app credentials. After assigning a managed identity to your web app, Azure takes care of the creation and distribution of a certificate. People don't have to worry about managing secrets or app credentials.
 
 This is secret-less way of doing this, that's why I love it. For eg: No credentials in the connection string.
 
 Any service that supports managed identity (B in the following image) can be securely accessed.
 
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6b13f2d9-08c4-4527-a09c-4d2fbb07994e">
+
+Internally, managed identities are service principals of a special type which are locked to only be used with Azure resources. 
+
+References
+1. [Microsoft Learn](https://learn.microsoft.com/en-us/azure/app-service/scenario-secure-app-access-storage?tabs=azure-portal)
+2. [Stackoverflow](https://stackoverflow.com/questions/61322079/difference-between-service-principal-and-managed-identities-in-azure)
+
+### User Principal vs Service Principal in Azure.
+[Reference](https://youtu.be/RLnQqJY7Hss?si=2xGIlR0XHsukXbgY)
+
+<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/29a2fabe-9ac5-4e52-9cee-26f083c0ebdd">
+<img width="387" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/217d6c13-cdb8-4b06-ab2d-decedf292ff5">
+
+While I'm interacting with my Azure resources, I also talk to my AD to get my token and make requests. Look example here:
+
+<img width="950" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/3edd26ca-1a60-4e4b-84c4-bedc3a8d8ab7">
+
+## Deploy web app to Azure
+### Install Azure toolkit for Rider
+Go to Plugins and install [Azure Toolkit for Rider](https://plugins.jetbrains.com/plugin/11220-azure-toolkit-for-rider).
+
+### Sign into Azure toolkit
+Go to Tools -> Azure -> Azure Sign In
+
+<img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f924cf07-fc32-4b6c-9d44-4802e4ee759c">
+
+Go with Device Login
+
+<img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6aae3f62-9011-4093-8dcf-f7443df7203c">
+
+Select my Subscription
+
+<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e9e2249c-e612-4d49-aea6-bc5c88d24210">
+
+### Publish to Azure
+Right click on Project -> Publish -> Azure
+
+<img width="200" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/bae42276-638e-47fb-a258-08579fa70acb">
+
+Select 'Use Existing Web App' and click on the app shown below, like so:
+
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/64f726fc-0f6b-4815-a242-3c9698395b63">
+
+Click Apply -> Run
+
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/1ed99a0b-fe1a-49ae-8881-fbf95be194ea">
+
+To publish it again, click configuration dropdown in the top right:
+
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6d3b33bb-6685-4817-aee7-c9c73cde3f42">
+
+At this point, the app doesn't work correctly on Azure. You still need to configure the secure connection between the App Service and the SQL database to retrieve your data. [Read it all about it here](https://learn.microsoft.com/en-us/azure/azure-sql/database/azure-sql-dotnet-entity-framework-core-quickstart?view=azuresql&tabs=dotnet-cli%2Cazure-portal%2Cportal#connect-the-app-service-to-azure-sql-database).
+
+<img width="700" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e82e4683-eefa-4186-a31d-903b3df6c77b">
+
+### Connect App service instance to Azure SQL database
+The following steps are required to connect the App Service instance to Azure SQL Database:
+1. Create a managed identity for the App Service. The `Microsoft.Data.SqlClient` library included in your app will automatically discover the managed identity, just like it discovered your local machine Azure User.
+2. Create a SQL database user and associate it with the App Service managed identity.
+3. Assign SQL roles to the database user that allow for read, write, and potentially other permissions.
+
+Use **Service connector** to accomplish this:  
+Service Connector is a tool that streamlines authenticated connections between different services in Azure. Service Connector currently supports connecting an App Service to a SQL database via the Azure CLI using the `az webapp connection create sql` command. This single command completes the three steps mentioned above for you.
+
+Go to Azure Portal and into the app service. You can see that it doesn't have anything under Identity -> System assigned
+
+<img width="550" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/c8b94fc3-2072-4de2-8d1b-d71f1048d1b4">
+
+Now run this command:  
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6157bb24-c3f7-404c-99e0-51a6e775f037">
 
 
-Go to my app service -> Identity to see that I've already enabled System assigned identity previously.
+which translates to (run it in Cloud Shell or Azure CLI):
+````
+az webapp connection create sql -g rg-sampleapp-eastus-dev-001 -n app-munson-web2-eastus-dev-001 --tg rg-sampleapp-eastus-dev-001 --server sqlserver-munson1-eastus-dev-001 --database sqldb-munson-eastus-dev-001 --system-identity --connection ThisCanBeAnything --client-type dotnet
+````
+At this point, you'll have managed Identity showing:
+
+<img width="550" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e24c0a25-5bda-4eed-a2ea-084936d67b78">
+
+This connection string created by the above command will show up inside Configuration:
+
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f532452e-3dfd-441d-a5f2-601df599da80">
+
+`Data Source=sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Authentication=ActiveDirectoryManagedIdentity`
+
+The user should show up in the SQL Db as well
+
+<img width="900" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f0996ebb-9008-42bc-9f5b-4c0822e60d5f">
+
+### Troubleshooting app startup
+Now go to the app url to see your app running.
+
+Unfortunately, it didn't start. :(
+
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/cde49004-fc7b-4eb9-86db-6b639225f2ac">
 
 
+Go to App Service -> Diagnose and solve problems -> Availability and Performance
 
-The note says: 
-"This resource is registered with Azure Active Directory. The managed identity can be configured to allow access to other resources. Be careful when making changes to the access settings for the managed identity because it can result in failures."
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/b1a42b4a-58bd-4703-a3b9-de1cf9ccc08a">
 
+Container crash ->
+
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d764391b-1a42-435e-8de9-6be3b16df454">
+
+**UPDATE:** Running the command again solved the issue for me:
+
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6be023dc-be0a-488e-9ef3-ecc087a8271d">
+
+Now the app runs from Azure! 🎉
+
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/7cf31c4b-433d-49cb-8d7a-37256739be7d">
+
+Keep in mind that when you deploy a web app to Azure, [it treats it as Production](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0#azure-app-service). 'Production' is default if DOTNET_ENVIORNMENT and ASPNETCORE_ENVIRONMENT is not set. [Reference](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0).
+
+Environment values set in `launchSettings.json` override values set in the system environment. That file is only used on the local dev machine.
+
+## Using Blob Storage
 A general purpose v2 storage account provides access to all of the Azure Storage Services: blobs, files, queues, table and disks.
 
-Blobs in Azure storage are organized into containers.
+Blobs in Azure storage are organized into containers.  
 Before we can upload a blob, we must first create a container.
 
 A binary large object (blob) is a collection of binary data stored as a single entity. Blobs are typically images, audio or other multimedia objects, though sometimes binary executable code is stored as a blob.
 
+### Create a storage account
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/30d4e933-26d7-4b1d-a040-861203730256">
 
+### Add a container to put images of my web app
+For eg: I gave 'web' as a name of my folder.
 
-Add a container to put images of my web app. For eg: I gave 'web' as a name of my folder.
-
+<img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/de1c2ed8-be64-4f18-a36e-5b4254bf00e3">
 
 The access level of this container is private by default. To change this to public, go to Configuration -> Allow Blob anonymous access -> Enabled -> Save
 
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/611d72b5-1228-4fd2-9746-db8fc7ec0aa5">
 
 Now change access level of this container: -> Blob
 
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/5c57644c-35d9-4ca6-96ff-acf0c8ce1bd6">
 
+### Grant web app access to storage account
 We need to grant our web app access to the storage account before we can create, read or delete blobs.
 
 Using Azure RBAC, we can give the managed Identity of the web app access to another Azure resource just like any security principal (User Principal or Service Principal explained earlier in this page).
 
 The 'Storage Blob Contributor' role gives the web app (represented by system assigned managed identity) read, write, and delete access to the blob container and data.
 
-
 Go to my storage account to grant my web app access to it.
 
-IAM -> Role Assignments
+Go to IAM -> Role Assignments
 This shows who has access to this resource. There's ME!
 
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/ad7ec846-bda5-4d70-adc5-70cee884716e">
 
+Let's add role assignment to a robot 🤖 (Managed Identity)
 
-
-Let's add role assignment to a robot (Managed Identity)
 Select Add -> Add role assignment
 
 Search for 'Storage block data contributor' role
 
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/13fea670-12b6-45db-9773-1651317d773e">
 
 Click Next to Select who needs this role
 
 Managed Identity -> Select Members -> Subscription -> App Service (Web App) -> 
+
 The managed Identity shows up.
 
+<img width="900" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/fdc35ea1-74fc-4db7-a356-7277991eb922">
 
 Select it and hit Next. 
 
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/5f951241-dfd1-4572-a53a-24a912d34e55">
 
 Hit 'Review + assign'.
 
 The IAM page looks like this after the assignment:
 
+<img width="950" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/5a6c02d4-6607-43b9-aeac-dcfffd40508d">
 
+Now go ahead and upload images to 'web' container using Azure portal. It's a simple file upload from your computer. I uploaded few images of pickles and preserves. 😃
 
-Now go ahead and upload images to 'web' container
-
+### Put CDN on top of blob storage
 The thing is these images are only available in the eat US. If I try to hit the blob url from Asia, it'll have to make bunch of internet hops to get to it.
-
 So what we can do is put a CDN on top of our blob storage.
+
 CDN lives on the Azure edge.
 
-Go to CDN
+Go to CDN -> 
 
 Give Profile name, Endpoint name and specify Query string caching behavior. 
+
 Hit create:
 
-
-
-Query string caching behaviors:
-1. Ignore Query String: The first request is served from the origin server and the response is cached. Subsequent requests are served from the cache whatever the query string is. This sounds ludicrous!
-
-Request1:
-Browser (mydomain.com/articles?page=3) -> Azure CDN -> Server (mydomain.com/articles?page=3)
-Request2:
-Browser (mydomain.com/articles?page=42) -> Azure CDN (from cached whatever the query string)
-2. Bypass caching for query string: Azure CDN doesn't cache the requests that have a query string.
-Request1:
-Browser (mydomain.com/articles?page=3) -> Azure CDN -> Server (mydomain.com/articles?page=3)
-Request2:
-Browser (mydomain.com/articles?page=3) -> Azure CDN -> Server (mydomain.com/articles?page=3)
-
-3.Use query string: Each request with a unique url including the query string is treated as a unique asset with its own cache.
-Request1:
-Browser (www.example.ashx?q=test1) -> Azure CDN -> Server (www.example.ashx?q=test1)
-Request2:
-Browser (www.example.ashx?q=test1) -> Azure CDN (from cache)
-
-The order of the query string parameters doesn't matter. For example, if the Azure CDN environment includes a cached response for the URL www.example.ashx?q=test1&r=test2, then a request for www.example.ashx?r=test2&q=test1 is also served from the cache.
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/05a1743b-e151-41ea-b586-fa92da8a7c92">
 
 Go to CDN endpoint now
 
 Grab the endpoint hostname that's served through CDN.
 Origin hostname is being served through the storage living in eastus.
+
 Notice the urls.
 
-
+<img width="900" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/c4fd5d9b-5535-46a7-8312-63acc54b3fba">
 
 Now grab the endpoint hostname + web + filename and update the db:
 
-
+<img width="900" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6b2aedeb-402b-4228-8050-041b7b5641e4">
 
 Update the code to show product photo in a "col" class.
 
+<img width="800" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/95a6485b-c99d-4d14-8153-b39655a935df">
 
 Now the page looks like this:
 
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/2094e5b2-c78d-40c3-97fd-ea8f2140a061">
 
+Explanation on Query string caching behavior options:  
+1. **Ignore Query String:** The first request is served from the origin server and the response is cached. Subsequent requests are served from the cache whatever the query string is. This sounds ludicrous!
+   ```
+   Request1:
+   Browser (mydomain.com/articles?page=3) -> Azure CDN -> Server (mydomain.com/articles?page=3)
+   Request2:
+   Browser (mydomain.com/articles?page=42) -> Azure CDN (from cached whatever the query string)
+   ```
+2. **Bypass caching for query string:** Azure CDN doesn't cache the requests that have a query string.
+   ```
+   Request1:
+   Browser (mydomain.com/articles?page=3) -> Azure CDN -> Server (mydomain.com/articles?page=3)
+   Request2:
+   Browser (mydomain.com/articles?page=3) -> Azure CDN -> Server (mydomain.com/articles?page=3)
+   ```
+3. **Use query string:** Each request with a unique url including the query string is treated as a unique asset with its own cache.
+   ```
+   Request1:
+   Browser (www.example.ashx?q=test1) -> Azure CDN -> Server (www.example.ashx?q=test1)
+   Request2:
+   Browser (www.example.ashx?q=test1) -> Azure CDN (from cache)
+   ```
+
+The order of the query string parameters doesn't matter. For example, if the Azure CDN environment includes a cached response for the URL `www.example.ashx?q=test1&r=test2`, then a request for `www.example.ashx?r=test2&q=test1` is also served from the cache.
+
+### 
 Now we want to give users the ability to upload images while giving a review of a product.
 
 For this we need Azure SDKs.
