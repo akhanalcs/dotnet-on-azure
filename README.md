@@ -526,34 +526,37 @@ Explanation on Query string caching behavior options:
 
 The order of the query string parameters doesn't matter. For example, if the Azure CDN environment includes a cached response for the URL `www.example.ashx?q=test1&r=test2`, then a request for `www.example.ashx?r=test2&q=test1` is also served from the cache.
 
-### 
+### Upload images using APIs
 Now we want to give users the ability to upload images while giving a review of a product.
 
 For this we need Azure SDKs.
 
 Go to Dependencies -> Manage NuGet Packages and add these packages to the project:
-1. Azure.Storage.Blobs : To work with Blob storage
-2. Microsoft.Extensions.Azure : Azure client SDK integration with Microsoft.Extensions libraries. For eg: To get this line to work:
+1. `Azure.Storage.Blobs` : To work with Blob storage
+2. `Microsoft.Extensions.Azure` : Azure client SDK integration with `Microsoft.Extensions` libraries. For eg: To get this line to work:
+   <img width="275" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/343177b9-4801-4af8-ae24-e19a4cb5b384">
 
-
-
-To setup connection to Blob. This article helped.
+To setup connection to Blob. This [article](https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/?tabs=command-line) helped.
 How to authenticate .NET applications with Azure services - .NET | Microsoft Learn
 
-IMPORTANT: (This wasted few hours and caused a lot of frustration)
+**IMPORTANT:** (This wasted few hours and caused a lot of frustration)  
 Your account needs to have Role Assignment to upload files even though I'm the owner.
 
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/c38e272b-4a32-41ad-8bad-a0e8310a20b4">
 
-
-Your account comes into the picture from DefaultAzureCredential used to setup the BlobServiceClient during local development.
+Your account comes into the picture from `DefaultAzureCredential` used to setup the `BlobServiceClient` during local development.
 
 Also as you can see in the screenshot above, Azure App Service (Web app) already has access to it through Managed Identity when it runs in the cloud.
 
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/42020bbb-3014-4dbd-b496-caa460629554">
 
+Take a look at the code to see how I implemented file upload using minimal APIs. It's pretty nice!
 
-Add Auth to our app:
+## Add Auth
+Everything about adding auth to the app is documented [here](https://github.com/affableashish/blazor-api-aadb2c).
 
-But first, let's learn some Auth basics.
+### Auth Basics
+But first, learn some Auth basics.
 
 Which OAuth 2.0 Flow Should I Use? (auth0.com)
 
@@ -634,6 +637,7 @@ Use Authorization Code Flow with Proof Key for Code Exchange (PKCE) ✅
 Case 6: Application that needs to talk to different Resource Servers
 If a single app needs access tokens for different resource servers, then multiple calls to /authorize (that is multiple executions of the same or different Authorization Flow) needs to be performed. Each authorization will use a different value for audience which will result in a different access token at the end of the flow.
 
+### Add auth to our app
 Back to our app:
 
 Choosing right auth library:
