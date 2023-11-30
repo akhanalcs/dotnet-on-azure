@@ -216,10 +216,10 @@ Notice it doesn't have type like web, api etc. after APPNAME. It's because I wan
 Allow connections to this SQL server from your IP.  
 They appear under Firewall rules. Only do this for dev scenarios, NOT for PROD. 
 
-<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/fc540f95-7fd1-40a4-ac1f-3899bc99e2ea">
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/92042627-6f46-4e6c-a0d0-1c59e8831f0b">
 
 And notice that's my IP address:  
-<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/8210cd60-f10d-4efb-af29-059c6acc58ee">
+<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/68a8b79d-6787-40d6-894b-5ea09714075a">
 
 ### Create Database
 **Db Name:** sqldb-munson-eastus-dev-001
