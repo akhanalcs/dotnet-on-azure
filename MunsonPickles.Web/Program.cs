@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents() // 👈 Adds services required to server-side render components. Added by default.
-    .AddServerComponents(); // 👈 Stuff I added for Server Side Interactivity
+    .AddInteractiveServerComponents(); // 👈 Stuff I added for Server Side Interactivity
 
 // Add the config files. I added this.
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? builder.Environment.EnvironmentName;
@@ -83,6 +83,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapRazorComponents<App>() // 👈 Discovers routable components and sets them up as endpoints. Added by default.
-    .AddServerRenderMode();  // 👈 Stuff I added for Server Side Interactivity
+    .AddInteractiveServerRenderMode();  // 👈 Stuff I added for Server Side Interactivity
 
 app.Run();

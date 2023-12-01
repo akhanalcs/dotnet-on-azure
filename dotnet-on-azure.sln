@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MunsonPickles.API", "Munson
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MunsonPickles.Shared", "MunsonPickles.Shared\MunsonPickles.Shared.csproj", "{116401DB-8D44-411E-8569-B541336DCF75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MunsonPickles.Web.New", "MunsonPickles.Web.New\MunsonPickles.Web.New.csproj", "{38F1A3C1-23E8-4D35-95ED-F203585F7398}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{116401DB-8D44-411E-8569-B541336DCF75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{116401DB-8D44-411E-8569-B541336DCF75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{116401DB-8D44-411E-8569-B541336DCF75}.Release|Any CPU.Build.0 = Release|Any CPU
-		{38F1A3C1-23E8-4D35-95ED-F203585F7398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{38F1A3C1-23E8-4D35-95ED-F203585F7398}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38F1A3C1-23E8-4D35-95ED-F203585F7398}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{38F1A3C1-23E8-4D35-95ED-F203585F7398}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
