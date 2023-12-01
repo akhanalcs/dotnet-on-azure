@@ -9,7 +9,7 @@ public static class ProductEndpoints
     public static void MapProductEndpoints(this WebApplication app)
     {
         var productsRouteGroup = app.MapGroup("/products");
-        productsRouteGroup.MapGet("/", GetAllProducts).RequireAuthorization("user_read");
+        productsRouteGroup.MapGet("/", GetAllProducts);
         productsRouteGroup.MapGet("/{ProductId:int}", GetProduct);
     }
 

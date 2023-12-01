@@ -11,7 +11,7 @@ public class ReviewService
     public ReviewService(HttpClient reviewClient, IConfiguration config)
     {
         _reviewClient = reviewClient;
-        _reviewClient.BaseAddress = new Uri(config["ApiEndpoint"]!);
+        _reviewClient.BaseAddress = new Uri(config["DownstreamApi:BaseUrl"]!);
     }
     
     public async Task AddReview(string reviewText, List<string> photoUrls, int productId)

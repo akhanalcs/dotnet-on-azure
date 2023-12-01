@@ -9,7 +9,7 @@ public class ProductService
     public ProductService(HttpClient httpClient, IConfiguration config)
     {
         _productClient = httpClient;
-        _productClient.BaseAddress = new Uri(config["ApiEndpoint"]!);
+        _productClient.BaseAddress = new Uri(config["DownstreamApi:BaseUrl"]!);
     }
 
     public async Task<IEnumerable<Product>?> GetAllProductsAsync()

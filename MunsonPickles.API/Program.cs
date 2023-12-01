@@ -2,8 +2,6 @@ using Azure.Core;
 using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Http.Json;
 using System.Text.Json.Serialization;
 using MunsonPickles.API.Data;
@@ -29,41 +27,6 @@ builder.Services.Configure<JsonOptions>(options =>
 {
     options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
-
-// AZURE ADB2C Setup - Start
-//https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/hosted-with-azure-active-directory-b2c?view=aspnetcore-7.0&viewFallbackFrom=aspnetcore-8.0#authentication-service-support
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAdB2C"));
-
-//https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/hosted-with-azure-active-directory-b2c?view=aspnetcore-7.0#configure-useridentityname
-builder.Services.Configure<JwtBearerOptions>(
-    JwtBearerDefaults.AuthenticationScheme, options =>
-    {
-        options.TokenValidationParameters.NameClaimType = "name";
-    });
-
-var initialScopes = builder.Configuration["AzureAdB2C:Scopes"]?.Split(' ');
-
-// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddMicrosoftIdentityWebApi(jwtBearerOptions =>
-//     {
-//         builder.Configuration.Bind("AzureAdB2C", jwtBearerOptions);
-//         //https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/hosted-with-azure-active-directory-b2c?view=aspnetcore-7.0#configure-useridentityname
-//         jwtBearerOptions.TokenValidationParameters.NameClaimType = "name";
-//     }, identityOptions =>
-//     {
-//         builder.Configuration.Bind("AzureAdB2C", identityOptions);
-//     });
-
-builder.Services.AddAuthorization();
-
-// AZURE ADB2C Setup - End
-
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("user_read", policy =>
-        policy
-            //.RequireRole("user")
-            .RequireClaim("scope", "read"));
 
 builder.Services.AddAntiforgery();
 
@@ -120,8 +83,8 @@ app.UseHttpsRedirection();
 //The endpoint is always null before UseRouting is called.
 //app.UseRouting();
 
-app.UseAuthentication();
-app.UseAuthorization();
+//app.UseAuthentication();
+//app.UseAuthorization();
 
 //Add your endpoints after these 2 calls ☝️ to protect them
 
