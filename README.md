@@ -539,7 +539,8 @@ For this we need Azure SDKs.
 
 Go to Dependencies -> Manage NuGet Packages and add these packages to the project:
 1. `Azure.Storage.Blobs` : To work with Blob storage
-2. `Microsoft.Extensions.Azure` : Azure client SDK integration with `Microsoft.Extensions` libraries. For eg: To get this line to work:
+2. `Microsoft.Extensions.Azure` : Azure client SDK integration with `Microsoft.Extensions` libraries.  
+   For eg: To get this line to work:  
    <img width="275" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/343177b9-4801-4af8-ae24-e19a4cb5b384">
 
 To setup connection to Blob. This [article](https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/?tabs=command-line) helped.
