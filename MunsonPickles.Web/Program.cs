@@ -35,6 +35,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAntiforgery();
 
 app.MapRazorComponents<App>() // 👈 Discovers routable components and sets them up as endpoints. Added by default.
     .AddInteractiveServerRenderMode();  // 👈 Stuff I added for Server Side Interactivity

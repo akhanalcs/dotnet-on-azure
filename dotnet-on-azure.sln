@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B584E34C-CACB-4E34-BB75-387D34B1B78D}"
 	ProjectSection(SolutionItems) = preProject
 		MunsonPickles.API.Dockerfile = MunsonPickles.API.Dockerfile
+		MunsonPickles.Web.Dockerfile = MunsonPickles.Web.Dockerfile
 	EndProjectSection
 EndProject
 Global

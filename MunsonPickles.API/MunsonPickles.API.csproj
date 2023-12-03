@@ -4,7 +4,14 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <InvariantGlobalization>false</InvariantGlobalization>
+        <!-- Had to switch this to true to avoid below error during `docker run`.
+            (It was set to false by default. "false" means access to cultural data)
+            "Process terminated. Couldn't find a valid ICU package installed on the system.
+            Please install libicu (or icu-libs) using your package manager and try again.
+            Alternatively you can set the configuration flag System.Globalization.Invariant to true
+            if you want to run with no globalization support."
+        -->
+        <InvariantGlobalization>true</InvariantGlobalization>
     </PropertyGroup>
 
     <ItemGroup>
