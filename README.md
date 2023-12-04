@@ -802,6 +802,42 @@ In `MunsonPickles.API` project:
    ```
 4. Run the function. Go to Storage Browser -> Tables. You'll see a new table `reviewimagedata` that has been populated with `ReviewImageInfo`.
 
+## CI/CD with GitHub Actions
+Github actions is
+1. CI/CD platform
+2. Integrated into your GitHub repository
+3. They are organized into workflows like build and deploy.
+4. 'Actions' run on events
+   - Push
+   - New Issue
+   - Pull Request
+   - etc.
+5. Defined in a YAML file
+
+The components of GitHub actions
+1. Workflow (on a clean VM)
+   - The overall process
+   - Can have more than 1 workflow per repository
+   - Executes on a "runner" or server
+   - Server can be a windows, ubuntu or macos VM
+2. Event
+   - Triggers a workflow to run
+   - Many types (push, PR, issue)
+3. Job
+   - A grouping of steps (actions) to execute
+   - Each job will run inside its own virtual machine runner, or inside a container and has one or more steps.
+4. Action
+   - Built-in task that performs a common complex task
+
+Workflow:  
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d1ea0f5c-88d7-49a4-9129-cf06d3f21221">
+
+### Create an Action YAML file
+Create a file in `dotnet-on-azure/.github/workflows/deploy-api.yml`
+
+
+
+
 
 
 
