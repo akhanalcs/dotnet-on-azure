@@ -538,7 +538,7 @@ Now we want to give users the ability to upload images while giving a review of 
 For this we need Azure SDKs.
 
 Go to Dependencies -> Manage NuGet Packages and add these packages to the project:
-1. `Azure.Storage.Blobs` : To work with Blob storage
+1. `Azure.Storage.Blobs` : To work with Blob storage.
 2. `Microsoft.Extensions.Azure` : Azure client SDK integration with `Microsoft.Extensions` libraries.  
    For eg: To get this line to work:  
    <img width="275" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/343177b9-4801-4af8-ae24-e19a4cb5b384">
@@ -560,3 +560,157 @@ Take a look at the code to see how I implemented file upload using minimal APIs.
 
 ## Add Auth
 Everything about adding auth to the app is documented [here](https://github.com/affableashish/blazor-api-aadb2c).
+
+## Deploy .NET Apps to Containers
+Benefits of containerizing an app:
+1. All components in a single package.
+2. Assured new instances the same.
+3. Quickly spin up new instances.
+4. Instances can be deployed in many places.
+5. Helps with agile development because you don't have to pull all the services, you can just work with your "micro" service at a time.
+
+Azure container services:
+1. Azure Container registry (sort of like Nuget but for images)
+2. Azure App Service
+3. Azure Functions
+4. Azure Container Apps  
+   Abstraction over Kubernetes which is really nice!
+5. Azure Kubernetes Service (AKS)
+6. Azure Container Instances  
+   Allows to new up containers in the cloud and run them. Not really great for prod scenarios because for eg: if the container goes down, it goes down, no orchestrator to replace it. 
+
+### Create Azure Container Registry from Azure portal
+For eg: `munsonpicklesacr.azurecr.io`
+
+### Create Dockerfiles for both API and Web app
+https://github.com/affableashish/dotnet-on-azure/blob/1855e458b8b5bda547a8503609d6d8cbba38096e/MunsonPickles.API.Dockerfile#L1-L22
+
+https://github.com/affableashish/dotnet-on-azure/blob/1855e458b8b5bda547a8503609d6d8cbba38096e/MunsonPickles.Web.Dockerfile#L1-L22
+
+[Reference](https://github.com/affableashish/docker-with-classlib).
+
+### Build docker images from Dockerfile and push it to ACR
+You can build it in your local computer and push it to the Azure Container Registry (ACR).
+But for this example, I want to use cloud shell to do this.
+
+Notice that you have docker in there already!
+
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/294b198c-edd7-4e84-822c-0cc9401ebc23">
+
+**Steps**
+1. Clone your repo (with Dockerfile checked in)
+   ```
+   gh repo clone https://github.com/affableashish/dotnet-on-azure.git
+   ```
+2. Go to the repo folder
+   ```
+   cd ./dotnet-on-azure
+   ```
+3. Build and push the image to your Azure Container Registry
+   ```
+   az acr build --file MunsonPickles.API.Dockerfile . --image pickles/my-cool-api:0.1.0 --registry munsonpicklesacr.azurecr.io
+   ```
+   It looks similar to building an image locally
+   ```
+   docker build -f MunsonPickles.API.Dockerfile . -t pickles/my-cool-api:0.1.0
+   ```
+
+### Test running the image locally (by pulling it from acr)
+Login to Azure ACR from your computer:
+```
+az acr login -n munsonpicklesacr
+```
+
+Pull the image down:
+
+MunsonPicklesACR registry -> Repositories -> find the image -> copy the 'docker pull command'
+```
+docker pull munsonpicklesacr.azurecr.io/pickles/my-cool-api:0.1.0
+```
+
+Run the image:
+```
+docker run --rm -it -p 8000:8080 -e ASPNETCORE_ENVIRONMENT=Development munsonpicklesacr.azurecr.io/pickles/my-cool-api:0.1.0
+```
+
+### Deploy the container to Azure App Service
+Create Web App (Azure App Service)
+
+Name: munson-api-linux-westus  
+Publish: Docker Container
+
+...
+
+
+After the deployment is complete, go to `munson-api-linux-westus` Web App -> Identity (under Settings)
+
+Turn On managed Identity.
+
+Now go to `MunsonPicklesACR` registry, give access to the managed identity you just created so the web app can pull images from this registry.
+
+Go to Accss Control -> Add -> Role Assignment (acr pull) -> Assign access to: managed identity -> choose your app service -> Next -> Review + assign
+
+Now go back to app service to tell it which registry it should go to and which image it should pull.
+
+Go to Deployment Center (under Deployment) -> Settings
+
+Container type: Single container  
+Registry source: Azure Container Registry  
+Authentication: Managed Identity  
+Registry: MunsonPicklesACR  
+Image: pickles/api  
+Tag: 0.1.0  
+
+-> Save
+
+Restart the web app and take it for a test ride by clicking the url. It should work at this point. 🎉
+
+## Serverless with Azure Functions
+1. Cloud provider manages infrastructure
+2. Allocates resources as necessary
+3. Scales down to zero. Reap this benefit by making your function focus on a specific task, and not do a whole lot so when it's free, it can scale down to zero.
+4. Lets you focus on business logic
+5. It launches in response to events
+6. Integrates with other Azure services
+
+### Scenarios of using Functions
+1. Build a web api
+2. Process file uploaded to Blob storages
+3. Respond to database changes
+4. Process message queues
+5. Analyze IoT streams
+6. Real time data with SignalR
+
+### Azure Functions "hooks"
+#### Triggers
+- Events that start the function.
+- Have incoming data: For eg: let's say a HTTP request that triggered a function. You can get the request body or query string of that request as incoming parameters.
+- There are triggers for many different services like:
+    - HTTP
+    - Timer
+    - Storage
+    - Data
+    - Event Grid
+    - etc.
+
+#### Bindings
+- Connect to another service like Send Grid if you wanted to send emails.
+- Input and Output bindings so you can have data come in or you can be writing data to various services.
+- Can have multiple bindings per Azure function. For eg: let's say we had a HTTP request coming in that triggered a function, we could have a binding to table storage that pull out data and we can have another binding to let's say blob storage that pulls out a blob and pulls that into your function and do something with it.
+
+### Example scenario
+Whenever some image (picture) is uploaded, it's going to write a message to an Azure storage queue, once that starts it's going to kick off an Azure function queue trigger. The function runs and it's going to use a table output binding just to write some data to table storage.
+
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f3abf68a-9d7c-48ad-ae01-f088430d5ae0">
+
+It'll show input binding, trigger and an output table binding.
+
+
+
+
+
+
+
+
+
+
