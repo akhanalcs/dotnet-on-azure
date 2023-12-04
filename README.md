@@ -705,11 +705,102 @@ Whenever some image (picture) is uploaded, it's going to write a message to an A
 
 It'll show input binding, trigger and an output table binding.
 
+### Send message to the storage queue
+In `MunsonPickles.API` project:
+1. Add storage queue SDK. Install `Azure.Storage.Queues` nuget package.
+2. Add storage queue endpoint url to appsettings.json. It just has `queue` instead of `blob` in the connection string.  
+   For eg: This is my blob storage connection string: `"https://stmunsoneastusdev001.blob.core.windows.net/"`, so the queue  connection string will be: `"https://stmunsoneastusdev001.queue.core.windows.net/"`
+3. Register it in Program.cs inside `.AddAzureClients`.
+   ```c#
+    azureBuilder.AddQueueServiceClient(new Uri(azQueueConnection))
+        .ConfigureOptions(opts =>
+        {
+            opts.MessageEncoding = QueueMessageEncoding.Base64; // Make sure any message I send is base64 encoded
+        });
+   ```
+4. Now go into `ReviewEndpoint.cs` and add logic to write a message to Azure storage queue after an image is uploaded.
+   ```c#
+   using Azure.Storage.Queues
+   using Azure.Storage.Queues.Models
+   
+   // Inject QueueServiceClient queueServiceClient into the "UploadReviewImages" method and use it
 
+   // Get a queue client for queue called "review-images"
+   var queueClient = queueServiceClient.GetQueueClient("review-images");
 
+   // Create the queue if it doesn't exist
+   await queueClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
+   // Send a message to the queue
+   await queueClient.SendMessageAsync($"{loggedInUser} {trustedFileNameForStorage}");
+   
+   ```
+   [Reference](https://github.com/affableashish/dotnet-on-azure/blob/3d93d7f0027c613fb84e7a4789b77bc11479ad0d/MunsonPickles.API/Endpoints/ReviewEndpoints.cs#L83)  
+   [Reference](https://github.com/codemillmatt/beginner-dotnet-on-azure/blob/main/7-functions/MunsonPickles.Web/Components/WriteReview.razor)
 
+5. Run the app, upload an image and go to your storage account in Azure Portal. Go to Storage Browser -> Queues. You'll see a new queue called `review-images` and you'll see a message there. The message body will be in the format: `$"{loggedInUser} {trustedFileNameForStorage}"`.
 
+### Trigger a function by a new message written to storage queue
+1. Create a new Azure Functions project `MunsonPickles.Functions`.
+   - Pick `Queue trigger` which means "hey run it off a queue".
+   - Specify connection string name. For eg: I chose PickleStorage.
+   - Specify queue name which is `review-images` from previous step.
+2. Specify connection strings in `local.settings.json`.  
+   When function runs, it needs a storage where it stores its state. It uses a storage account for that, so specify connection string that points to our storage account as the value of `AzureWebJobsStorage` key. In real prod scenario, you should have a separate storage account dedicated to your Functions. As for the `PickleStorageConnection`, put the same connection string. 
+   ```json
+   {
+     "IsEncrypted": false,
+     "Values": {
+        "AzureWebJobsStorage": "Put the connection string with Account Name and Account Key",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "PickleStorageConnection": "Put the connection string with Account Name and Account Key"
+       }
+   }
+   ```
+3. When a new message comes in to `review-images` storage queue, it'll trigger the below function which writes `ReviewImageInfo` data to `reviewimagedata` table.
+   ```c#
+    [StorageAccount("PickleStorageConnection")]
+    public class QueueMonitor
+    {
+        [FunctionName("QueueMonitor")]
+        [return: Table("reviewimagedata")] // If there's no reviewimagedata table present, it'll create it.
+        public ReviewImageInfo Run(
+            [QueueTrigger("review-images")]string message,
+            ILogger log)
+        {
+            // split the message name based on the space
+            var theParts = message.Split(' ');
+
+            // user id is the first part
+            var userId = theParts[0];
+
+            // image name is the second part
+            var imageName = theParts[1];
+
+            log.LogInformation($"C# Queue trigger function processed: {message}");
+
+            // write to table storage with information about the blob
+            return new ReviewImageInfo {
+                BlobName = "{userId}/{imageName}",
+                PartitionKey = userId,
+                RowKey = Guid.NewGuid().ToString(),
+                UploadedDate = DateTime.Now,
+                ImageName = imageName
+            };
+        }
+    }
+
+    public class ReviewImageInfo
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public string BlobName { get; set; }
+        public string ImageName { get; set; } 
+        public string UserId { get; set; }
+        public DateTime UploadedDate { get; set; }
+    }
+   ```
+4. Run the function. Go to Storage Browser -> Tables. You'll see a new table `reviewimagedata` that has been populated with `ReviewImageInfo`.
 
 
 
