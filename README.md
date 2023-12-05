@@ -77,7 +77,7 @@ Note: Users live at Tenant/ Directory level.
 - Can be linked to existing identity stores for single sign on, or segregated into a separate area.
 - Becomes the major separation for assignment of RBAC within services.
 - Inside every subscription we can add Resources like VM, SqlDb etc.
-- Tenant or Directory has 1:M relationship with Subscription.
+- Tenant or Directory has 1:M relationship with Subscription.  
   <img src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/1fb07d42-6b49-479d-8dff-706892fb5500" width="450">
 
 ### Resource Groups
