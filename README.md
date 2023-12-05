@@ -864,4 +864,4 @@ https://github.com/affableashish/dotnet-on-azure/blob/e621a6ec148536e248982a91a5
 
    <img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/676537ff-83d9-448d-8510-764c4be6dcc7">
 
-<h1>Congratulations on finishing dotnet-on-azure series! 🍾 🙌 😃 <h1>
+### Congratulations on finishing dotnet-on-azure series! 🍾 🙌 😃
