@@ -538,7 +538,7 @@ Now we want to give users the ability to upload images while giving a review of 
 For this we need Azure SDKs.
 
 Go to Dependencies -> Manage NuGet Packages and add these packages to the project:
-1. `Azure.Storage.Blobs` : To work with Blob storage
+1. `Azure.Storage.Blobs` : To work with Blob storage.
 2. `Microsoft.Extensions.Azure` : Azure client SDK integration with `Microsoft.Extensions` libraries.  
    For eg: To get this line to work:  
    <img width="275" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/343177b9-4801-4af8-ae24-e19a4cb5b384">
@@ -560,3 +560,284 @@ Take a look at the code to see how I implemented file upload using minimal APIs.
 
 ## Add Auth
 Everything about adding auth to the app is documented [here](https://github.com/affableashish/blazor-api-aadb2c).
+
+## Deploy .NET Apps to Containers
+Benefits of containerizing an app:
+1. All components in a single package.
+2. Assured new instances the same.
+3. Quickly spin up new instances.
+4. Instances can be deployed in many places.
+5. Helps with agile development because you don't have to pull all the services, you can just work with your "micro" service at a time.
+
+Azure container services:
+1. Azure Container registry (sort of like Nuget but for images)
+2. Azure App Service
+3. Azure Functions
+4. Azure Container Apps  
+   Abstraction over Kubernetes which is really nice!
+5. Azure Kubernetes Service (AKS)
+6. Azure Container Instances  
+   Allows to new up containers in the cloud and run them. Not really great for prod scenarios because for eg: if the container goes down, it goes down, no orchestrator to replace it. 
+
+### Create Azure Container Registry from Azure portal
+For eg: `munsonpicklesacr.azurecr.io`
+
+### Create Dockerfiles for both API and Web app
+https://github.com/affableashish/dotnet-on-azure/blob/1855e458b8b5bda547a8503609d6d8cbba38096e/MunsonPickles.API.Dockerfile#L1-L22
+
+https://github.com/affableashish/dotnet-on-azure/blob/1855e458b8b5bda547a8503609d6d8cbba38096e/MunsonPickles.Web.Dockerfile#L1-L22
+
+[Reference](https://github.com/affableashish/docker-with-classlib).
+
+### Build docker images from Dockerfile and push it to ACR
+You can build it in your local computer and push it to the Azure Container Registry (ACR).
+But for this example, I want to use cloud shell to do this.
+
+Notice that you have docker in there already!
+
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/294b198c-edd7-4e84-822c-0cc9401ebc23">
+
+**Steps**
+1. Clone your repo (with Dockerfile checked in)
+   ```
+   gh repo clone https://github.com/affableashish/dotnet-on-azure.git
+   ```
+2. Go to the repo folder
+   ```
+   cd ./dotnet-on-azure
+   ```
+3. Build and push the image to your Azure Container Registry
+   ```
+   az acr build --file MunsonPickles.API.Dockerfile . --image pickles/my-cool-api:0.1.0 --registry munsonpicklesacr.azurecr.io
+   ```
+   It looks similar to building an image locally
+   ```
+   docker build -f MunsonPickles.API.Dockerfile . -t pickles/my-cool-api:0.1.0
+   ```
+
+### Test running the image locally (by pulling it from acr)
+Login to Azure ACR from your computer:
+```
+az acr login -n munsonpicklesacr
+```
+
+Pull the image down:
+
+MunsonPicklesACR registry -> Repositories -> find the image -> copy the 'docker pull command'
+```
+docker pull munsonpicklesacr.azurecr.io/pickles/my-cool-api:0.1.0
+```
+
+Run the image:
+```
+docker run --rm -it -p 8000:8080 -e ASPNETCORE_ENVIRONMENT=Development munsonpicklesacr.azurecr.io/pickles/my-cool-api:0.1.0
+```
+
+### Deploy the container to Azure App Service
+Create Web App (Azure App Service)
+
+Name: munson-api-linux-westus  
+Publish: Docker Container
+
+...
+
+
+After the deployment is complete, go to `munson-api-linux-westus` Web App -> Identity (under Settings)
+
+Turn On managed Identity.
+
+Now go to `MunsonPicklesACR` registry, give access to the managed identity you just created so the web app can pull images from this registry.
+
+Go to Accss Control -> Add -> Role Assignment (acr pull) -> Assign access to: managed identity -> choose your app service -> Next -> Review + assign
+
+Now go back to app service to tell it which registry it should go to and which image it should pull.
+
+Go to Deployment Center (under Deployment) -> Settings
+
+Container type: Single container  
+Registry source: Azure Container Registry  
+Authentication: Managed Identity  
+Registry: MunsonPicklesACR  
+Image: pickles/api  
+Tag: 0.1.0  
+
+-> Save
+
+Restart the web app and take it for a test ride by clicking the url. It should work at this point. 🎉
+
+## Serverless with Azure Functions
+1. Cloud provider manages infrastructure
+2. Allocates resources as necessary
+3. Scales down to zero. Reap this benefit by making your function focus on a specific task, and not do a whole lot so when it's free, it can scale down to zero.
+4. Lets you focus on business logic
+5. It launches in response to events
+6. Integrates with other Azure services
+
+### Scenarios of using Functions
+1. Build a web api
+2. Process file uploaded to Blob storages
+3. Respond to database changes
+4. Process message queues
+5. Analyze IoT streams
+6. Real time data with SignalR
+
+### Azure Functions "hooks"
+#### Triggers
+- Events that start the function.
+- Have incoming data: For eg: let's say a HTTP request that triggered a function. You can get the request body or query string of that request as incoming parameters.
+- There are triggers for many different services like:
+    - HTTP
+    - Timer
+    - Storage
+    - Data
+    - Event Grid
+    - etc.
+
+#### Bindings
+- Connect to another service like Send Grid if you wanted to send emails.
+- Input and Output bindings so you can have data come in or you can be writing data to various services.
+- Can have multiple bindings per Azure function. For eg: let's say we had a HTTP request coming in that triggered a function, we could have a binding to table storage that pull out data and we can have another binding to let's say blob storage that pulls out a blob and pulls that into your function and do something with it.
+
+### Example scenario
+Whenever some image (picture) is uploaded, it's going to write a message to an Azure storage queue, once that starts it's going to kick off an Azure function queue trigger. The function runs and it's going to use a table output binding just to write some data to table storage.
+
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f3abf68a-9d7c-48ad-ae01-f088430d5ae0">
+
+It'll show input binding, trigger and an output table binding.
+
+### Send message to the storage queue
+In `MunsonPickles.API` project:
+1. Add storage queue SDK. Install `Azure.Storage.Queues` nuget package.
+2. Add storage queue endpoint url to appsettings.json. It just has `queue` instead of `blob` in the connection string.  
+   For eg: This is my blob storage connection string: `"https://stmunsoneastusdev001.blob.core.windows.net/"`, so the queue  connection string will be: `"https://stmunsoneastusdev001.queue.core.windows.net/"`
+3. Register it in Program.cs inside `.AddAzureClients`.
+   ```c#
+    azureBuilder.AddQueueServiceClient(new Uri(azQueueConnection))
+        .ConfigureOptions(opts =>
+        {
+            opts.MessageEncoding = QueueMessageEncoding.Base64; // Make sure any message I send is base64 encoded
+        });
+   ```
+4. Now go into `ReviewEndpoint.cs` and add logic to write a message to Azure storage queue after an image is uploaded.
+   ```c#
+   using Azure.Storage.Queues
+   using Azure.Storage.Queues.Models
+   
+   // Inject QueueServiceClient queueServiceClient into the "UploadReviewImages" method and use it
+
+   // Get a queue client for queue called "review-images"
+   var queueClient = queueServiceClient.GetQueueClient("review-images");
+
+   // Create the queue if it doesn't exist
+   await queueClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
+
+   // Send a message to the queue
+   await queueClient.SendMessageAsync($"{loggedInUser} {trustedFileNameForStorage}");
+   
+   ```
+   [Reference](https://github.com/affableashish/dotnet-on-azure/blob/3d93d7f0027c613fb84e7a4789b77bc11479ad0d/MunsonPickles.API/Endpoints/ReviewEndpoints.cs#L83)  
+   [Reference](https://github.com/codemillmatt/beginner-dotnet-on-azure/blob/main/7-functions/MunsonPickles.Web/Components/WriteReview.razor)
+
+5. Run the app, upload an image and go to your storage account in Azure Portal. Go to Storage Browser -> Queues. You'll see a new queue called `review-images` and you'll see a message there. The message body will be in the format: `$"{loggedInUser} {trustedFileNameForStorage}"`.
+
+### Trigger a function by a new message written to storage queue
+1. Create a new Azure Functions project `MunsonPickles.Functions`.
+   - Pick `Queue trigger` which means "hey run it off a queue".
+   - Specify connection string name. For eg: I chose PickleStorage.
+   - Specify queue name which is `review-images` from previous step.
+2. Specify connection strings in `local.settings.json`.  
+   When function runs, it needs a storage where it stores its state. It uses a storage account for that, so specify connection string that points to our storage account as the value of `AzureWebJobsStorage` key. In real prod scenario, you should have a separate storage account dedicated to your Functions. As for the `PickleStorageConnection`, put the same connection string. 
+   ```json
+   {
+     "IsEncrypted": false,
+     "Values": {
+        "AzureWebJobsStorage": "Put the connection string with Account Name and Account Key",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "PickleStorageConnection": "Put the connection string with Account Name and Account Key"
+       }
+   }
+   ```
+3. When a new message comes in to `review-images` storage queue, it'll trigger the below function which writes `ReviewImageInfo` data to `reviewimagedata` table.
+   ```c#
+    [StorageAccount("PickleStorageConnection")]
+    public class QueueMonitor
+    {
+        [FunctionName("QueueMonitor")]
+        [return: Table("reviewimagedata")] // If there's no reviewimagedata table present, it'll create it.
+        public ReviewImageInfo Run(
+            [QueueTrigger("review-images")]string message,
+            ILogger log)
+        {
+            // split the message name based on the space
+            var theParts = message.Split(' ');
+
+            // user id is the first part
+            var userId = theParts[0];
+
+            // image name is the second part
+            var imageName = theParts[1];
+
+            log.LogInformation($"C# Queue trigger function processed: {message}");
+
+            // write to table storage with information about the blob
+            return new ReviewImageInfo {
+                BlobName = "{userId}/{imageName}",
+                PartitionKey = userId,
+                RowKey = Guid.NewGuid().ToString(),
+                UploadedDate = DateTime.Now,
+                ImageName = imageName
+            };
+        }
+    }
+
+    public class ReviewImageInfo
+    {
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public string BlobName { get; set; }
+        public string ImageName { get; set; } 
+        public string UserId { get; set; }
+        public DateTime UploadedDate { get; set; }
+    }
+   ```
+4. Run the function. Go to Storage Browser -> Tables. You'll see a new table `reviewimagedata` that has been populated with `ReviewImageInfo`.
+
+## CI/CD with GitHub Actions
+Github actions is
+1. CI/CD platform
+2. Integrated into your GitHub repository
+3. They are organized into workflows like build and deploy.
+4. 'Actions' run on events
+   - Push
+   - New Issue
+   - Pull Request
+   - etc.
+5. Defined in a YAML file
+
+The components of GitHub actions
+1. Workflow (on a clean VM)
+   - The overall process
+   - Can have more than 1 workflow per repository
+   - Executes on a "runner" or server
+   - Server can be a windows, ubuntu or macos VM
+2. Event
+   - Triggers a workflow to run
+   - Many types (push, PR, issue)
+3. Job
+   - A grouping of steps (actions) to execute
+   - Each job will run inside its own virtual machine runner, or inside a container and has one or more steps.
+4. Action
+   - Built-in task that performs a common complex task
+
+Workflow:  
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d1ea0f5c-88d7-49a4-9129-cf06d3f21221">
+
+### Create an Action YAML file
+Create a file in `dotnet-on-azure/.github/workflows/deploy-api.yml`
+
+
+
+
+
+
+
