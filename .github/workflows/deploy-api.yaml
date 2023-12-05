@@ -1,4 +1,6 @@
   # Create an action to deploy MunsonPickles.API to Azure
+  name: Deploy MunsonPickles.API to Azure App Service
+  
   on:
     # This gives an ability to run it manually
     workflow_dispatch: 
