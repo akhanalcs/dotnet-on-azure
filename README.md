@@ -1,5 +1,5 @@
 # dotnet-on-azure
-Trying out .NET in Azure.
+This repo contains notes I took while following [this](https://youtube.com/playlist?list=PLdo4fOcmZ0oVSBX3Lde8owu6dSgZLIXfu&si=dUXcMY3UFBPjFDyu) video series on YouTube. 
 
 ## Common Services
 - Azure App Service
@@ -15,9 +15,6 @@ Trying out .NET in Azure.
 - Azure Container Apps
 - App Config
 - Cosmos Db
-
-## Multitenant Apps
-Think of music streaming service or photo sharing service.
 
 ## Understanding Tenants and Subscriptions
 ```mermaid
@@ -94,7 +91,7 @@ References:
 3. [Difference between Tenant and Subscription](https://stackoverflow.com/a/61702511/8644294)
 
 ## View TenandId and Subscription in Azure Portal
-### Open account in Azure
+### Create account in Azure
 Go to portal.azure.com. It's pretty self-explanatory.
 
 ### Setup cloud shell
@@ -109,7 +106,7 @@ sudo chown -R $(whoami) /usr/local/opt
 chmod u+w /usr/local/opt
 brew update && brew install azure-cli
 ```
- 
+
 #### Login to Azure using cloud shell
 ````
 az login
@@ -356,11 +353,12 @@ Go to Azure Portal and into the app service. You can see that it doesn't have an
 
 <img width="550" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/c8b94fc3-2072-4de2-8d1b-d71f1048d1b4">
 
-Now run this command:  
+Now run this command (run it in Cloud Shell or Azure CLI):
+
 <img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6157bb24-c3f7-404c-99e0-51a6e775f037">
 
 
-which translates to (run it in Cloud Shell or Azure CLI):
+which translates to:
 ````
 az webapp connection create sql -g rg-sampleapp-eastus-dev-001 -n app-munson-web2-eastus-dev-001 --tg rg-sampleapp-eastus-dev-001 --server sqlserver-munson1-eastus-dev-001 --database sqldb-munson-eastus-dev-001 --system-identity --connection ThisCanBeAnything --client-type dotnet
 ````
@@ -385,7 +383,6 @@ Unfortunately, it didn't start. :(
 
 <img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/cde49004-fc7b-4eb9-86db-6b639225f2ac">
 
-
 Go to App Service -> Diagnose and solve problems -> Availability and Performance
 
 <img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/b1a42b4a-58bd-4703-a3b9-de1cf9ccc08a">
@@ -402,17 +399,17 @@ Now the app runs from Azure! 🎉
 
 <img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/7cf31c4b-433d-49cb-8d7a-37256739be7d">
 
-Keep in mind that when you deploy a web app to Azure, [it treats it as Production](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0#azure-app-service). 'Production' is default if DOTNET_ENVIORNMENT and ASPNETCORE_ENVIRONMENT is not set. [Reference](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0).
+Keep in mind that when you deploy a web app to Azure, [it treats it as Production](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0#azure-app-service). 'Production' is default if DOTNET_ENVIRONMENT and ASPNETCORE_ENVIRONMENT is not set. [Reference](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0).
 
 Environment values set in `launchSettings.json` override values set in the system environment. That file is only used on the local dev machine.
 
 ## Using Blob Storage
+A binary large object (blob) is a collection of binary data stored as a single entity. Blobs are typically images, audio or other multimedia objects, though sometimes binary executable code is stored as a blob.
+
 A general purpose v2 storage account provides access to all of the Azure Storage Services: blobs, files, queues, table and disks.
 
 Blobs in Azure storage are organized into containers.  
 Before we can upload a blob, we must first create a container.
-
-A binary large object (blob) is a collection of binary data stored as a single entity. Blobs are typically images, audio or other multimedia objects, though sometimes binary executable code is stored as a blob.
 
 ### Create a storage account
 <img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/30d4e933-26d7-4b1d-a040-861203730256">
@@ -556,7 +553,7 @@ Also as you can see in the screenshot above, Azure App Service (Web app) already
 
 <img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/42020bbb-3014-4dbd-b496-caa460629554">
 
-Take a look at the code to see how I implemented file upload using minimal APIs. It's pretty nice!
+**Take a look at the code** to see how I implemented file upload using minimal APIs. It's pretty nice!
 
 ## Add Auth
 Everything about adding auth to the app is documented [here](https://github.com/affableashish/blazor-api-aadb2c).
@@ -641,14 +638,13 @@ Publish: Docker Container
 
 ...
 
-
 After the deployment is complete, go to `munson-api-linux-westus` Web App -> Identity (under Settings)
 
-Turn On managed Identity.
+Turn On 'Managed Identity'.
 
 Now go to `MunsonPicklesACR` registry, give access to the managed identity you just created so the web app can pull images from this registry.
 
-Go to Accss Control -> Add -> Role Assignment (acr pull) -> Assign access to: managed identity -> choose your app service -> Next -> Review + assign
+Go to Access Control -> Add -> Role Assignment (acr pull) -> Assign access to: managed identity -> choose your app service -> Next -> Review + assign
 
 Now go back to app service to tell it which registry it should go to and which image it should pull.
 
@@ -743,10 +739,10 @@ In `MunsonPickles.API` project:
 ### Trigger a function by a new message written to storage queue
 1. Create a new Azure Functions project `MunsonPickles.Functions`.
    - Pick `Queue trigger` which means "hey run it off a queue".
-   - Specify connection string name. For eg: I chose PickleStorage.
+   - Specify connection string name. For eg: I chose `PickleStorageConnection`.
    - Specify queue name which is `review-images` from previous step.
 2. Specify connection strings in `local.settings.json`.  
-   When function runs, it needs a storage where it stores its state. It uses a storage account for that, so specify connection string that points to our storage account as the value of `AzureWebJobsStorage` key. In real prod scenario, you should have a separate storage account dedicated to your Functions. As for the `PickleStorageConnection`, put the same connection string. 
+   When function runs, it needs a storage where it stores its state. It uses a storage account for that, so specify connection string that points to our storage account as the value of `AzureWebJobsStorage` key. In real prod scenario, you should have a separate storage account dedicated to your Functions.
    ```json
    {
      "IsEncrypted": false,
@@ -800,7 +796,7 @@ In `MunsonPickles.API` project:
         public DateTime UploadedDate { get; set; }
     }
    ```
-4. Run the function. Go to Storage Browser -> Tables. You'll see a new table `reviewimagedata` that has been populated with `ReviewImageInfo`.
+4. Run the function. Go to 'Storage Browser' -> Tables. You'll see a new table `reviewimagedata` that has been populated with `ReviewImageInfo`.
 
 ## CI/CD with GitHub Actions
 Github actions is
@@ -835,9 +831,37 @@ Workflow:
 ### Create an Action YAML file
 Create a file in `dotnet-on-azure/.github/workflows/deploy-api.yml`
 
+https://github.com/affableashish/dotnet-on-azure/blob/e621a6ec148536e248982a91a55f7dd90a7578f7/.github/workflows/deploy-api.yaml#L1-L44
 
+### Deploy to Azure App service using GitHub actions
+1. Go to your app service and download the publish profile  
+   <img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/5459e012-31b9-4190-a84c-ad3a2d5e8ce0">
 
+2. Add profile you downloaded from step 1 to your GitHub repo  
+   - Open the file you downloaded in step 1 using a text editor like notepad, copy it
+   - Go to your GitHub repo -> Settings -> Secrets and Variables -> Actions
+   - Under 'Repository secrets', click 'New repository secret', give it a name "API_PUBLISH_PROFILE" and paste the publish profile there
 
+   <img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d22a97e0-946c-4dd9-8d8b-8e22d51c7eac">
 
+3. Add environment variables
+   ```yml
+   env:
+     AZURE_WEBAPP_NAME: "app-munson-web2-eastus-dev-001" # Copied from App service name
+   ```
 
+4. Run the workflow  
+   <img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/3bf6a57e-084f-4b3c-8d83-d0ec91194ca9">
 
+   It succeeds 🎉
+
+   <img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e83b9f41-8063-4a6b-848b-bcf653a02d71">
+
+5. Check the app running in Azure App Service by hitting an endpoint  
+   <img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/087da617-3b05-43de-b6e0-5b399f170fe2">
+
+   Remember, it came from
+
+   <img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/676537ff-83d9-448d-8510-764c4be6dcc7">
+
+<h1>Congratulations on finishing dotnet-on-azure series! 🍾 🙌 😃 <h1>
