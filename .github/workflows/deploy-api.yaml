@@ -1,0 +1,42 @@
+  # Create an action to deploy MunsonPickles.API to Azure
+  on:
+    # This gives an ability to run it manually
+    workflow_dispatch: 
+  
+  # Add environment variables
+  env:
+    AZURE_WEBAPP_NAME: "app-munson-web2-eastus-dev-001" # Copied from App service name
+  
+  # Jobs has one or more steps that either run a script that you define or run an action
+  jobs:
+    build:
+      runs-on: ubuntu-latest # VMs are built new every single time
+      steps:
+        # Pull the code
+        - uses: actions/checkout@v3
+        
+        # Setup .NET core on the ubuntu VM
+        - name: Setup .NET Core
+          uses: actions/setup-dotnet@v3
+          with:
+            dotnet-version: 8.0.x
+        
+        # Nuget restore  
+        - name: Install dependencies
+          run: dotnet restore MunsonPickles.API/MunsonPickles.API.csproj
+        
+        # Build the app
+        - name: Build
+          run: dotnet build MunsonPickles.API/MunsonPickles.API.csproj -c Release --no-restore
+        
+        # Publish the app
+        - name: Publish
+          run: dotnet publish MunsonPickles.API/MunsonPickles.API.csproj -c Release --no-build --output ./publish
+          
+        # Deploy to Azure
+        - name: Deploy to Azure App Service
+          uses: azure/webapps-deploy@v3
+          with: 
+            app-name: ${{ env.AZURE_WEBAPP_NAME }}
+            publish-profile: ${{ secrets.API_PUBLISH_PROFILE }}
+            package: ./publish
