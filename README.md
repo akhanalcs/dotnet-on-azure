@@ -261,14 +261,14 @@ At this point you need to be logged into Azure using Azure CLI (`az login`), if 
 
 <img width="800" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/8b20fb3a-16eb-4a4f-ae1d-2b98bc98166e">
 
-Azure CLI login is shows [here](#### Login to Azure using cloud shell).
+Azure CLI login is shown [here](#### Login to Azure using cloud shell).
 
 **So far:**
 
-Resource Group: `rg-munson-eastus-dev-001`
-App Service: `app-munson-web-eastus-dev-001`
-App Service Plan: `asp-munson-eastus-dev-001`
-Db Server: `sqlserver-munson-eastus-dev-001`
+Resource Group: `rg-munson-eastus-dev-001`  
+App Service: `app-munson-web-eastus-dev-001`  
+App Service Plan: `asp-munson-eastus-dev-001`  
+Db Server: `sqlserver-munson-eastus-dev-001`  
 Db Name: `sqldb-munson-eastus-dev-001`
 
 ## Managed Identity
