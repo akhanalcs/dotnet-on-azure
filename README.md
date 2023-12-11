@@ -1,5 +1,5 @@
 # dotnet-on-azure
-Trying out .NET in Azure.
+This repo contains notes I took while following [this](https://youtube.com/playlist?list=PLdo4fOcmZ0oVSBX3Lde8owu6dSgZLIXfu&si=dUXcMY3UFBPjFDyu) video series on YouTube. 
 
 ## Common Services
 - Azure App Service
@@ -15,9 +15,6 @@ Trying out .NET in Azure.
 - Azure Container Apps
 - App Config
 - Cosmos Db
-
-## Multitenant Apps
-Think of music streaming service or photo sharing service.
 
 ## Understanding Tenants and Subscriptions
 ```mermaid
@@ -65,7 +62,7 @@ Note: Users live at Tenant/ Directory level.
 - Every MSFT service is always associated with an Azure AD even if we're not using Azure.
 - For eg: If I'm using O365, I'll have Azure AD at the top of it.
 
-<img width="600" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/019c6117-c1c5-4bde-9da0-e4d022ba2b7c">
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/019c6117-c1c5-4bde-9da0-e4d022ba2b7c">
 
 ### Subscriptions
 - Construct for creating separate billing and management boundaries. Is managed in portal.azure.com.
@@ -80,8 +77,8 @@ Note: Users live at Tenant/ Directory level.
 - Can be linked to existing identity stores for single sign on, or segregated into a separate area.
 - Becomes the major separation for assignment of RBAC within services.
 - Inside every subscription we can add Resources like VM, SqlDb etc.
-- Tenant or Directory has 1:M relationship with Subscription.
-  <img src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/1fb07d42-6b49-479d-8dff-706892fb5500" width="450">
+- Tenant or Directory has 1:M relationship with Subscription.  
+  <img src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/1fb07d42-6b49-479d-8dff-706892fb5500" width="450">
 
 ### Resource Groups
 - A container that holds related resources.
@@ -94,7 +91,7 @@ References:
 3. [Difference between Tenant and Subscription](https://stackoverflow.com/a/61702511/8644294)
 
 ## View TenandId and Subscription in Azure Portal
-### Open account in Azure
+### Create account in Azure
 Go to portal.azure.com. It's pretty self-explanatory.
 
 ### Setup cloud shell
@@ -109,12 +106,12 @@ sudo chown -R $(whoami) /usr/local/opt
 chmod u+w /usr/local/opt
 brew update && brew install azure-cli
 ```
- 
+
 #### Login to Azure using cloud shell
 ````
 az login
 ````
-<img width="600" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/82aadcff-b17b-4f72-8e6b-2def70a6e555">
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/82aadcff-b17b-4f72-8e6b-2def70a6e555">
 
 #### Register `Microsoft.CloudShell` namespace to your subscription
 Why?
@@ -133,19 +130,19 @@ az provider register --namespace Microsoft.CloudShell
 ````
 
 ### View tenantId
-<img width="650" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/a91baa41-f750-4659-a695-c327e4376497">
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/a91baa41-f750-4659-a695-c327e4376497">
 
 Note: `tenantId` is my DirectoryId and `id` is my SubscriptionID.
 
 ### View Subscription
 Search for Subscription from the search bar:
 
-<img width="700" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/9e74b73c-ab1f-4984-b395-886c16f5d583">
+<img width="700" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/9e74b73c-ab1f-4984-b395-886c16f5d583">
 
 ### View Subscription costs
 You can see cost of your services inside the Subscription. Click on the Azure subscription 1 shown above.
 
-<img width="750" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/d1ecaf88-2803-4d7a-91f6-4db425fd3559">
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d1ecaf88-2803-4d7a-91f6-4db425fd3559">
 
 ## Create apps to deploy to Azure
 Create a web app (`MunsonPickles.Web`) and an API (`MunsonPickles.API`). Take a look at the code to see how they look.
@@ -168,7 +165,7 @@ Add interactivity to the new Blazor Web App in .NET 8 using [this guide](https:/
 ### Db Seed code in API
 Line 13 will create the tables, and line 14 will seed the database.
 
-<img width="800" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/2d2cdf2f-ebf0-4fef-8c03-f4f8b33b5333">
+<img width="800" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/2d2cdf2f-ebf0-4fef-8c03-f4f8b33b5333">
 
 Explicit migration is not required in the above approach that looks like
 ````
@@ -178,7 +175,7 @@ dotnet ef database update
 
 So when line `db.Database.EnsureCreated()` runs, it'll create the database and the next line will initialize the database.
 
-<img width="750" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/e170506f-1fb0-49f4-9f54-5bceba2a6f77">
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e170506f-1fb0-49f4-9f54-5bceba2a6f77">
 
 ## Create resource group
 ````
@@ -195,7 +192,7 @@ ResourceGroup-AppName-Location-Environment-Instance
 ## Create Azure App Service
 app-APPNAME-WEB(Because it's a web app)-LOCATION-ENV-INSTANCE
 
-<img width="650" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/e9f06473-84b1-4c08-b46b-e5e6f9db36b2">
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e9f06473-84b1-4c08-b46b-e5e6f9db36b2">
 
 Web app runs on **App Service Plan** which determines CPU and memory of it.
 
@@ -211,15 +208,15 @@ Notice it doesn't have type like web, api etc. after APPNAME. It's because I wan
 ### Create Database server
 **Db Server:** sqlserver-munson-eastus-dev-001
 
-<img width="750" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/727db0cf-e869-46c0-809d-f21122d699ee">
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/727db0cf-e869-46c0-809d-f21122d699ee">
 
 Allow connections to this SQL server from your IP.  
 They appear under Firewall rules. Only do this for dev scenarios, NOT for PROD. 
 
-<img width="850" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/92042627-6f46-4e6c-a0d0-1c59e8831f0b">
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/92042627-6f46-4e6c-a0d0-1c59e8831f0b">
 
 And notice that's my IP address:  
-<img width="400" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/68a8b79d-6787-40d6-894b-5ea09714075a">
+<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/68a8b79d-6787-40d6-894b-5ea09714075a">
 
 ### Create Database
 **Db Name:** sqldb-munson-eastus-dev-001
@@ -233,7 +230,7 @@ Add this conncection string to `dotnet-secrets`.
 1. Go into the project folder and init (`dotnet user-secrets init`).
 2. This will appear in `.csproj` file.
    
-   <img width="850" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/a4e82a9a-0cca-4279-962f-4491810ab5f1">
+   <img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/a4e82a9a-0cca-4279-962f-4491810ab5f1">
 
 Set the connection string with this command:
 ````
@@ -242,15 +239,15 @@ dotnet user-secrets set ConnectionStrings:Default "Server=tcp:sqlserver-munson1-
 
 This will set the connection string like this in the secrets.json:
 
-<img width="200" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/7c06cfb3-4502-4060-afed-9a13b0f441ce">
+<img width="200" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/7c06cfb3-4502-4060-afed-9a13b0f441ce">
 
 It actually looks like this (after installing this [plugin](https://plugins.jetbrains.com/plugin/10183--net-core-user-secrets)):
 
-<img width="400" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/b7374a63-8e5b-4eb0-92ed-71e81a4e49a9">
+<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/b7374a63-8e5b-4eb0-92ed-71e81a4e49a9">
 
 This is where that file is stored. [Reference](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-7.0&tabs=linux).
 
-<img width="500" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/4e337b64-6ae2-4967-ab06-0e087f486e06">
+<img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/4e337b64-6ae2-4967-ab06-0e087f486e06">
 
 ### Connect to Database without password (my preferred way, a better way)
 [Reference](https://learn.microsoft.com/en-us/azure/azure-sql/database/azure-sql-dotnet-entity-framework-core-quickstart?view=azuresql&tabs=visual-studio%2Cservice-connector%2Cportal#add-the-code-to-connect-to-azure-sql-database)
@@ -262,16 +259,16 @@ The passwordless connection string includes a configuration value of `Authentica
 
 At this point you need to be logged into Azure using Azure CLI (`az login`), if you are not logged in, you'll get this exception if you try to run the app:
 
-<img width="800" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/8b20fb3a-16eb-4a4f-ae1d-2b98bc98166e">
+<img width="800" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/8b20fb3a-16eb-4a4f-ae1d-2b98bc98166e">
 
-Azure CLI login is shows [here](#### Login to Azure using cloud shell).
+Azure CLI login is shown [here](#Login-to-Azure-using-cloud-shell).
 
 **So far:**
 
-Resource Group: `rg-munson-eastus-dev-001`
-App Service: `app-munson-web-eastus-dev-001`
-App Service Plan: `asp-munson-eastus-dev-001`
-Db Server: `sqlserver-munson-eastus-dev-001`
+Resource Group: `rg-munson-eastus-dev-001`  
+App Service: `app-munson-web-eastus-dev-001`  
+App Service Plan: `asp-munson-eastus-dev-001`  
+Db Server: `sqlserver-munson-eastus-dev-001`  
 Db Name: `sqldb-munson-eastus-dev-001`
 
 ## Managed Identity
@@ -281,7 +278,7 @@ This is secret-less way of doing this, that's why I love it. For eg: No credenti
 
 Any service that supports managed identity (B in the following image) can be securely accessed.
 
-<img width="650" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/6b13f2d9-08c4-4527-a09c-4d2fbb07994e">
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6b13f2d9-08c4-4527-a09c-4d2fbb07994e">
 
 Internally, managed identities are service principals of a special type which are locked to only be used with Azure resources. 
 
@@ -290,20 +287,20 @@ References
 2. [Stackoverflow](https://stackoverflow.com/questions/61322079/difference-between-service-principal-and-managed-identities-in-azure)
 
 ### Service Principal vs Managed Identity in Azure
-<img width="650" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/52891608-dfcb-49c0-b7d4-70389946f38a">
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/52891608-dfcb-49c0-b7d4-70389946f38a">
 
 ### User Principal vs Service Principal in Azure
 [Reference](https://youtu.be/RLnQqJY7Hss?si=2xGIlR0XHsukXbgY)
 
 <p align="left">
-  <img width="400" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/29a2fabe-9ac5-4e52-9cee-26f083c0ebdd">
+  <img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/29a2fabe-9ac5-4e52-9cee-26f083c0ebdd">
 &nbsp; &nbsp; &nbsp; &nbsp;
-  <img width="387" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/217d6c13-cdb8-4b06-ab2d-decedf292ff5">
+  <img width="387" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/217d6c13-cdb8-4b06-ab2d-decedf292ff5">
 </p>
 
 While I'm interacting with my Azure resources, I also talk to my AD to get my token and make requests. Look example here:
 
-<img width="950" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/3edd26ca-1a60-4e4b-84c4-bedc3a8d8ab7">
+<img width="950" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/3edd26ca-1a60-4e4b-84c4-bedc3a8d8ab7">
 
 ## Deploy web app to Azure
 ### Install Azure toolkit for Rider
@@ -312,36 +309,36 @@ Go to Plugins and install [Azure Toolkit for Rider](https://plugins.jetbrains.co
 ### Sign into Azure toolkit
 Go to Tools -> Azure -> Azure Sign In
 
-<img width="500" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/f924cf07-fc32-4b6c-9d44-4802e4ee759c">
+<img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f924cf07-fc32-4b6c-9d44-4802e4ee759c">
 
 Go with Device Login
 
-<img width="500" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/6aae3f62-9011-4093-8dcf-f7443df7203c">
+<img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6aae3f62-9011-4093-8dcf-f7443df7203c">
 
 Select my Subscription
 
-<img width="400" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/e9e2249c-e612-4d49-aea6-bc5c88d24210">
+<img width="400" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e9e2249c-e612-4d49-aea6-bc5c88d24210">
 
 ### Publish to Azure
 Right click on Project -> Publish -> Azure
 
-<img width="200" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/bae42276-638e-47fb-a258-08579fa70acb">
+<img width="200" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/bae42276-638e-47fb-a258-08579fa70acb">
 
 Select 'Use Existing Web App' and click on the app shown below, like so:
 
-<img width="750" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/64f726fc-0f6b-4815-a242-3c9698395b63">
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/64f726fc-0f6b-4815-a242-3c9698395b63">
 
 Click Apply -> Run
 
-<img width="750" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/1ed99a0b-fe1a-49ae-8881-fbf95be194ea">
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/1ed99a0b-fe1a-49ae-8881-fbf95be194ea">
 
 To publish it again, click configuration dropdown in the top right:
 
-<img width="450" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/6d3b33bb-6685-4817-aee7-c9c73cde3f42">
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6d3b33bb-6685-4817-aee7-c9c73cde3f42">
 
 At this point, the app doesn't work correctly on Azure. You still need to configure the secure connection between the App Service and the SQL database to retrieve your data. [Read it all about it here](https://learn.microsoft.com/en-us/azure/azure-sql/database/azure-sql-dotnet-entity-framework-core-quickstart?view=azuresql&tabs=dotnet-cli%2Cazure-portal%2Cportal#connect-the-app-service-to-azure-sql-database).
 
-<img width="700" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/e82e4683-eefa-4186-a31d-903b3df6c77b">
+<img width="700" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e82e4683-eefa-4186-a31d-903b3df6c77b">
 
 ### Connect App service instance to Azure SQL database
 The following steps are required to connect the App Service instance to Azure SQL Database:
@@ -354,81 +351,81 @@ Service Connector is a tool that streamlines authenticated connections between d
 
 Go to Azure Portal and into the app service. You can see that it doesn't have anything under Identity -> System assigned
 
-<img width="550" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/c8b94fc3-2072-4de2-8d1b-d71f1048d1b4">
+<img width="550" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/c8b94fc3-2072-4de2-8d1b-d71f1048d1b4">
 
-Now run this command:  
-<img width="450" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/6157bb24-c3f7-404c-99e0-51a6e775f037">
+Now run this command (run it in Cloud Shell or Azure CLI):
+
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6157bb24-c3f7-404c-99e0-51a6e775f037">
 
 
-which translates to (run it in Cloud Shell or Azure CLI):
+which translates to:
 ````
 az webapp connection create sql -g rg-sampleapp-eastus-dev-001 -n app-munson-web2-eastus-dev-001 --tg rg-sampleapp-eastus-dev-001 --server sqlserver-munson1-eastus-dev-001 --database sqldb-munson-eastus-dev-001 --system-identity --connection ThisCanBeAnything --client-type dotnet
 ````
 At this point, you'll have managed Identity showing:
 
-<img width="550" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/e24c0a25-5bda-4eed-a2ea-084936d67b78">
+<img width="550" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e24c0a25-5bda-4eed-a2ea-084936d67b78">
 
 This connection string created by the above command will show up inside Configuration:
 
-<img width="850" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/f532452e-3dfd-441d-a5f2-601df599da80">
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f532452e-3dfd-441d-a5f2-601df599da80">
 
 `Data Source=sqlserver-munson1-eastus-dev-001.database.windows.net,1433;Initial Catalog=sqldb-munson-eastus-dev-001;Authentication=ActiveDirectoryManagedIdentity`
 
 The user should show up in the SQL Db as well
 
-<img width="900" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/f0996ebb-9008-42bc-9f5b-4c0822e60d5f">
+<img width="900" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f0996ebb-9008-42bc-9f5b-4c0822e60d5f">
 
 ### Troubleshooting app startup
 Now go to the app url to see your app running.
 
 Unfortunately, it didn't start. :(
 
-<img width="450" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/cde49004-fc7b-4eb9-86db-6b639225f2ac">
-
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/cde49004-fc7b-4eb9-86db-6b639225f2ac">
 
 Go to App Service -> Diagnose and solve problems -> Availability and Performance
 
-<img width="600" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/b1a42b4a-58bd-4703-a3b9-de1cf9ccc08a">
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/b1a42b4a-58bd-4703-a3b9-de1cf9ccc08a">
 
 Container crash ->
 
-<img width="650" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/d764391b-1a42-435e-8de9-6be3b16df454">
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d764391b-1a42-435e-8de9-6be3b16df454">
 
 **UPDATE:** Running the command again solved the issue for me:
 
-<img width="600" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/6be023dc-be0a-488e-9ef3-ecc087a8271d">
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6be023dc-be0a-488e-9ef3-ecc087a8271d">
 
 Now the app runs from Azure! 🎉
 
-<img width="650" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/7cf31c4b-433d-49cb-8d7a-37256739be7d">
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/7cf31c4b-433d-49cb-8d7a-37256739be7d">
 
-Keep in mind that when you deploy a web app to Azure, [it treats it as Production](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0#azure-app-service). 'Production' is default if DOTNET_ENVIORNMENT and ASPNETCORE_ENVIRONMENT is not set. [Reference](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0).
+Keep in mind that when you deploy a web app to Azure, [it treats it as Production](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0#azure-app-service). 'Production' is default if DOTNET_ENVIRONMENT and ASPNETCORE_ENVIRONMENT is not set. [Reference](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-8.0).
 
 Environment values set in `launchSettings.json` override values set in the system environment. That file is only used on the local dev machine.
 
 ## Using Blob Storage
+A binary large object (blob) is a collection of binary data stored as a single entity. Blobs are typically images, audio or other multimedia objects, though sometimes binary executable code is stored as a blob.
+
 A general purpose v2 storage account provides access to all of the Azure Storage Services: blobs, files, queues, table and disks.
 
 Blobs in Azure storage are organized into containers.  
 Before we can upload a blob, we must first create a container.
 
-A binary large object (blob) is a collection of binary data stored as a single entity. Blobs are typically images, audio or other multimedia objects, though sometimes binary executable code is stored as a blob.
-
 ### Create a storage account
-<img width="450" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/30d4e933-26d7-4b1d-a040-861203730256">
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/30d4e933-26d7-4b1d-a040-861203730256">
 
 ### Add a container to put images of my web app
 For eg: I gave 'web' as a name of my folder.
 
-<img width="500" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/de1c2ed8-be64-4f18-a36e-5b4254bf00e3">
+<img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/de1c2ed8-be64-4f18-a36e-5b4254bf00e3">
 
 The access level of this container is private by default. To change this to public, go to Configuration -> Allow Blob anonymous access -> Enabled -> Save
 
-<img width="650" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/611d72b5-1228-4fd2-9746-db8fc7ec0aa5">
+<img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/611d72b5-1228-4fd2-9746-db8fc7ec0aa5">
 
 Now change access level of this container: -> Blob
 
-<img width="450" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/5c57644c-35d9-4ca6-96ff-acf0c8ce1bd6">
+<img width="450" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/5c57644c-35d9-4ca6-96ff-acf0c8ce1bd6">
 
 ### Grant web app access to storage account
 We need to grant our web app access to the storage account before we can create, read or delete blobs.
@@ -442,7 +439,7 @@ Go to my storage account to grant my web app access to it.
 Go to IAM -> Role Assignments
 This shows who has access to this resource. There's ME!
 
-<img width="850" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/ad7ec846-bda5-4d70-adc5-70cee884716e">
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/ad7ec846-bda5-4d70-adc5-70cee884716e">
 
 Let's add role assignment to a robot 🤖 (Managed Identity)
 
@@ -450,7 +447,7 @@ Select Add -> Add role assignment
 
 Search for 'Storage block data contributor' role
 
-<img width="850" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/13fea670-12b6-45db-9773-1651317d773e">
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/13fea670-12b6-45db-9773-1651317d773e">
 
 Click Next to Select who needs this role
 
@@ -458,17 +455,17 @@ Managed Identity -> Select Members -> Subscription -> App Service (Web App) ->
 
 The managed Identity shows up.
 
-<img width="900" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/fdc35ea1-74fc-4db7-a356-7277991eb922">
+<img width="900" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/fdc35ea1-74fc-4db7-a356-7277991eb922">
 
 Select it and hit Next. 
 
-<img width="600" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/5f951241-dfd1-4572-a53a-24a912d34e55">
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/5f951241-dfd1-4572-a53a-24a912d34e55">
 
 Hit 'Review + assign'.
 
 The IAM page looks like this after the assignment:
 
-<img width="950" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/5a6c02d4-6607-43b9-aeac-dcfffd40508d">
+<img width="950" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/5a6c02d4-6607-43b9-aeac-dcfffd40508d">
 
 Now go ahead and upload images to 'web' container using Azure portal. It's a simple file upload from your computer. I uploaded few images of pickles and preserves. 😃
 
@@ -484,7 +481,7 @@ Give Profile name, Endpoint name and specify Query string caching behavior.
 
 Hit create:
 
-<img width="850" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/05a1743b-e151-41ea-b586-fa92da8a7c92">
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/05a1743b-e151-41ea-b586-fa92da8a7c92">
 
 Go to CDN endpoint now
 
@@ -493,19 +490,19 @@ Origin hostname is being served through the storage living in eastus.
 
 Notice the urls.
 
-<img width="900" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/c4fd5d9b-5535-46a7-8312-63acc54b3fba">
+<img width="900" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/c4fd5d9b-5535-46a7-8312-63acc54b3fba">
 
 Now grab the endpoint hostname + web + filename and update the db:
 
-<img width="900" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/6b2aedeb-402b-4228-8050-041b7b5641e4">
+<img width="900" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/6b2aedeb-402b-4228-8050-041b7b5641e4">
 
 Update the code to show product photo in a "col" class.
 
-<img width="800" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/95a6485b-c99d-4d14-8153-b39655a935df">
+<img width="800" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/95a6485b-c99d-4d14-8153-b39655a935df">
 
 Now the page looks like this:
 
-<img width="750" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/2094e5b2-c78d-40c3-97fd-ea8f2140a061">
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/2094e5b2-c78d-40c3-97fd-ea8f2140a061">
 
 Explanation on Query string caching behavior options:  
 1. **Ignore Query String:** The first request is served from the origin server and the response is cached. Subsequent requests are served from the cache whatever the query string is. This sounds ludicrous!
@@ -541,25 +538,25 @@ Go to Dependencies -> Manage NuGet Packages and add these packages to the projec
 1. `Azure.Storage.Blobs` : To work with Blob storage.
 2. `Microsoft.Extensions.Azure` : Azure client SDK integration with `Microsoft.Extensions` libraries.  
    For eg: To get this line to work:  
-   <img width="275" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/343177b9-4801-4af8-ae24-e19a4cb5b384">
+   <img width="275" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/343177b9-4801-4af8-ae24-e19a4cb5b384">
 
 To setup connection to Blob. This [article](https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/?tabs=command-line) helped.
 
 **IMPORTANT:** (This wasted few hours and caused a lot of frustration)  
 Your account needs to have Role Assignment to upload files even though I'm the owner.
 
-<img width="850" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/c38e272b-4a32-41ad-8bad-a0e8310a20b4">
+<img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/c38e272b-4a32-41ad-8bad-a0e8310a20b4">
 
 Your account comes into the picture from `DefaultAzureCredential` used to setup the `BlobServiceClient` during local development.
 
 Also as you can see in the screenshot above, Azure App Service (Web app) already has access to it through Managed Identity when it runs in the cloud.
 
-<img width="750" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/42020bbb-3014-4dbd-b496-caa460629554">
+<img width="750" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/42020bbb-3014-4dbd-b496-caa460629554">
 
-Take a look at the code to see how I implemented file upload using minimal APIs. It's pretty nice!
+**Take a look at the code** to see how I implemented file upload using minimal APIs. It's pretty nice!
 
 ## Add Auth
-Everything about adding auth to the app is documented [here](https://github.com/akhanalcs/blazor-api-aadb2c).
+Everything about adding auth to the app is documented [here](https://github.com/affableashish/blazor-api-aadb2c).
 
 ## Deploy .NET Apps to Containers
 Benefits of containerizing an app:
@@ -583,11 +580,11 @@ Azure container services:
 For eg: `munsonpicklesacr.azurecr.io`
 
 ### Create Dockerfiles for both API and Web app
-https://github.com/akhanalcs/dotnet-on-azure/blob/1855e458b8b5bda547a8503609d6d8cbba38096e/MunsonPickles.API.Dockerfile#L1-L22
+https://github.com/affableashish/dotnet-on-azure/blob/1855e458b8b5bda547a8503609d6d8cbba38096e/MunsonPickles.API.Dockerfile#L1-L22
 
-https://github.com/akhanalcs/dotnet-on-azure/blob/1855e458b8b5bda547a8503609d6d8cbba38096e/MunsonPickles.Web.Dockerfile#L1-L22
+https://github.com/affableashish/dotnet-on-azure/blob/1855e458b8b5bda547a8503609d6d8cbba38096e/MunsonPickles.Web.Dockerfile#L1-L22
 
-[Reference](https://github.com/akhanalcs/docker-with-classlib).
+[Reference](https://github.com/affableashish/docker-with-classlib).
 
 ### Build docker images from Dockerfile and push it to ACR
 You can build it in your local computer and push it to the Azure Container Registry (ACR).
@@ -595,12 +592,12 @@ But for this example, I want to use cloud shell to do this.
 
 Notice that you have docker in there already!
 
-<img width="600" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/294b198c-edd7-4e84-822c-0cc9401ebc23">
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/294b198c-edd7-4e84-822c-0cc9401ebc23">
 
 **Steps**
 1. Clone your repo (with Dockerfile checked in)
    ```
-   gh repo clone https://github.com/akhanalcs/dotnet-on-azure.git
+   gh repo clone https://github.com/affableashish/dotnet-on-azure.git
    ```
 2. Go to the repo folder
    ```
@@ -641,14 +638,13 @@ Publish: Docker Container
 
 ...
 
-
 After the deployment is complete, go to `munson-api-linux-westus` Web App -> Identity (under Settings)
 
-Turn On managed Identity.
+Turn On 'Managed Identity'.
 
 Now go to `MunsonPicklesACR` registry, give access to the managed identity you just created so the web app can pull images from this registry.
 
-Go to Accss Control -> Add -> Role Assignment (acr pull) -> Assign access to: managed identity -> choose your app service -> Next -> Review + assign
+Go to Access Control -> Add -> Role Assignment (acr pull) -> Assign access to: managed identity -> choose your app service -> Next -> Review + assign
 
 Now go back to app service to tell it which registry it should go to and which image it should pull.
 
@@ -701,7 +697,7 @@ Restart the web app and take it for a test ride by clicking the url. It should w
 ### Example scenario
 Whenever some image (picture) is uploaded, it's going to write a message to an Azure storage queue, once that starts it's going to kick off an Azure function queue trigger. The function runs and it's going to use a table output binding just to write some data to table storage.
 
-<img width="600" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/f3abf68a-9d7c-48ad-ae01-f088430d5ae0">
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/f3abf68a-9d7c-48ad-ae01-f088430d5ae0">
 
 It'll show input binding, trigger and an output table binding.
 
@@ -735,7 +731,7 @@ In `MunsonPickles.API` project:
    await queueClient.SendMessageAsync($"{loggedInUser} {trustedFileNameForStorage}");
    
    ```
-   [Reference](https://github.com/akhanalcs/dotnet-on-azure/blob/3d93d7f0027c613fb84e7a4789b77bc11479ad0d/MunsonPickles.API/Endpoints/ReviewEndpoints.cs#L83)  
+   [Reference](https://github.com/affableashish/dotnet-on-azure/blob/3d93d7f0027c613fb84e7a4789b77bc11479ad0d/MunsonPickles.API/Endpoints/ReviewEndpoints.cs#L83)  
    [Reference](https://github.com/codemillmatt/beginner-dotnet-on-azure/blob/main/7-functions/MunsonPickles.Web/Components/WriteReview.razor)
 
 5. Run the app, upload an image and go to your storage account in Azure Portal. Go to Storage Browser -> Queues. You'll see a new queue called `review-images` and you'll see a message there. The message body will be in the format: `$"{loggedInUser} {trustedFileNameForStorage}"`.
@@ -743,10 +739,10 @@ In `MunsonPickles.API` project:
 ### Trigger a function by a new message written to storage queue
 1. Create a new Azure Functions project `MunsonPickles.Functions`.
    - Pick `Queue trigger` which means "hey run it off a queue".
-   - Specify connection string name. For eg: I chose PickleStorage.
+   - Specify connection string name. For eg: I chose `PickleStorageConnection`.
    - Specify queue name which is `review-images` from previous step.
 2. Specify connection strings in `local.settings.json`.  
-   When function runs, it needs a storage where it stores its state. It uses a storage account for that, so specify connection string that points to our storage account as the value of `AzureWebJobsStorage` key. In real prod scenario, you should have a separate storage account dedicated to your Functions. As for the `PickleStorageConnection`, put the same connection string. 
+   When function runs, it needs a storage where it stores its state. It uses a storage account for that, so specify connection string that points to our storage account as the value of `AzureWebJobsStorage` key. In real prod scenario, you should have a separate storage account dedicated to your Functions.
    ```json
    {
      "IsEncrypted": false,
@@ -800,7 +796,7 @@ In `MunsonPickles.API` project:
         public DateTime UploadedDate { get; set; }
     }
    ```
-4. Run the function. Go to Storage Browser -> Tables. You'll see a new table `reviewimagedata` that has been populated with `ReviewImageInfo`.
+4. Run the function. Go to 'Storage Browser' -> Tables. You'll see a new table `reviewimagedata` that has been populated with `ReviewImageInfo`.
 
 ## CI/CD with GitHub Actions
 Github actions is
@@ -830,14 +826,42 @@ The components of GitHub actions
    - Built-in task that performs a common complex task
 
 Workflow:  
-<img width="600" alt="image" src="https://github.com/akhanalcs/dotnet-on-azure/assets/30603497/d1ea0f5c-88d7-49a4-9129-cf06d3f21221">
+<img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d1ea0f5c-88d7-49a4-9129-cf06d3f21221">
 
 ### Create an Action YAML file
 Create a file in `dotnet-on-azure/.github/workflows/deploy-api.yml`
 
+https://github.com/affableashish/dotnet-on-azure/blob/e621a6ec148536e248982a91a55f7dd90a7578f7/.github/workflows/deploy-api.yaml#L1-L44
 
+### Deploy to Azure App service using GitHub actions
+1. Go to your app service and download the publish profile  
+   <img width="650" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/5459e012-31b9-4190-a84c-ad3a2d5e8ce0">
 
+2. Add profile you downloaded from step 1 to your GitHub repo  
+   - Open the file you downloaded in step 1 using a text editor like notepad, copy it
+   - Go to your GitHub repo -> Settings -> Secrets and Variables -> Actions
+   - Under 'Repository secrets', click 'New repository secret', give it a name "API_PUBLISH_PROFILE" and paste the publish profile there
 
+   <img width="600" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/d22a97e0-946c-4dd9-8d8b-8e22d51c7eac">
 
+3. Add environment variables
+   ```yml
+   env:
+     AZURE_WEBAPP_NAME: "app-munson-web2-eastus-dev-001" # Copied from App service name
+   ```
 
+4. Run the workflow  
+   <img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/3bf6a57e-084f-4b3c-8d83-d0ec91194ca9">
 
+   It succeeds 🎉
+
+   <img width="850" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/e83b9f41-8063-4a6b-848b-bcf653a02d71">
+
+5. Check the app running in Azure App Service by hitting an endpoint  
+   <img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/087da617-3b05-43de-b6e0-5b399f170fe2">
+
+   Remember, it came from
+
+   <img width="500" alt="image" src="https://github.com/affableashish/dotnet-on-azure/assets/30603497/676537ff-83d9-448d-8510-764c4be6dcc7">
+
+### Congratulations on finishing dotnet-on-azure series! 🍾 🙌 😃
