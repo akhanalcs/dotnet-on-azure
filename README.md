@@ -22,7 +22,7 @@ graph TD
     A[Enrollment] ---> B["ABC Organization (Tenant aka Directory)<br>For eg: abc.onmicrosoft.com"]
     B --> C1["Contoso(Tenant)<br>For eg: contoso.onmicrosoft.com"]
     B --> C2["Fabrikam(Tenant)<br>For eg: fabrikam.onmicrosoft.com"]
-    B ---> C3["Some Saas Non Azure Subscription"] %% Extra "-" to push it down a level
+    B ---> C3["Some Saas Non Azure Subscription"]
     C1 --> D11["Dev Sub"]
     C1 --> D12["Prod Sub"]
     D11 --> E111["Dev RG1"]
