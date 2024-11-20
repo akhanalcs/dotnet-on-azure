@@ -1,5 +1,5 @@
 # dotnet-on-azure
-This repo contains notes I took while following [this](https://youtube.com/playlist?list=PLdo4fOcmZ0oVSBX3Lde8owu6dSgZLIXfu&si=dUXcMY3UFBPjFDyu) video series on YouTube. 
+This repo contains solution to [.NET on Azure video series](https://youtube.com/playlist?list=PLdo4fOcmZ0oVSBX3Lde8owu6dSgZLIXfu&si=dUXcMY3UFBPjFDyu) on YouTube.
 
 ## Common Services
 - Azure App Service
